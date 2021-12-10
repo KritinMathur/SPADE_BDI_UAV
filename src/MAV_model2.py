@@ -72,7 +72,7 @@ class MAVAgent(PubSubMixin,BDIAgent):
         
         self.drone = await MAV_controller2.connect_mav()
 
-        #await self.pubsub.create('pubsub.localhost', "Telemetry_node")
+        await self.pubsub.create('pubsub.localhost', "Telemetry_node")
 
 
     ####BDI###
@@ -99,7 +99,7 @@ class MAVAgent(PubSubMixin,BDIAgent):
             yield
 
 if __name__ == "__main__":
-    mav = MAVAgent("test2@localhost", "password",'/home/kritin/Desktop/SPADE_BDI_UAV/src/behave.asl')
+    mav = MAVAgent("test2@localhost", "password",'./src/behave.asl')
     future = mav.start()
     future.result()
 
