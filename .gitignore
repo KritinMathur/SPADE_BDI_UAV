@@ -1,0 +1,5 @@
+env/
+__pycache__/
+
+
+prosody_bkup.cfg.lua
