@@ -32,7 +32,7 @@ class MAVAgent(PubSubMixin,BDIAgent):
                 command_gcs_literal = command_payload[-1].data
                 command_gcs = json.loads(command_gcs_literal)
 
-                if command_gcs['ID'] == 'test':
+                if command_gcs['ID'] == args.name:
                     await self.agent.pubsub.purge('pubsub.localhost', "Cmd_node")
                     print(command_gcs)
 
@@ -69,7 +69,7 @@ class MAVAgent(PubSubMixin,BDIAgent):
         self.context = zmq.asyncio.Context()
         print("Starting drone model controller server…")
         self.socket = self.context.socket(zmq.PAIR)
-        self.socket.bind("tcp://*:5555")
+        self.socket.bind(f"tcp://*:{args.mc_port}")
 
         print("GCS Agent starting . . .")
         m2g = self.MAVtoGCS()
@@ -110,11 +110,12 @@ if __name__ == "__main__":
     parser.add_argument('--autopilot', type=str, default="px4", help='Agent autopilot software.')
     parser.add_argument('--uav_add', type =str, default='udp://:14540',help='UAV system address')
     parser.add_argument('--uav_port', type =int, default=50040, help='MAVSDK Server port (only required for PX4)')
+    parser.add_argument('--mc_port', type =int, default=5555, help = 'model controller port')
     args = parser.parse_args()
 
     
     if args.autopilot == 'px4':
-        os.system('python3 src/MAV_controller_px4.py --uav_add = {} --uav_port.py = {} &'.format(args.uav_add, args.uav_port))
+        os.system('python3 src/MAV_controller_px4.py --uav_add {} --uav_port {} --mc_port {} &'.format(args.uav_add, args.uav_port,args.mc_port))
     
 
     mav = MAVAgent("{}@{}".format(args.name, args.server), args.password,'./src/behave.asl')

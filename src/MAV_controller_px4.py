@@ -6,11 +6,19 @@ import zmq.asyncio
 from mavsdk import System
 from mavsdk.mission import (MissionItem, MissionPlan)
 import json
+import argparse
+
+global cont_args
+parser = argparse.ArgumentParser(description='MAV_Model BDI')
+parser.add_argument('--uav_add', type =str, default='udp://:14540',help='UAV system address')
+parser.add_argument('--uav_port', type =int, default=50040, help='MAVSDK Server port (only required for PX4)')
+parser.add_argument('--mc_port', type =int, default=5555, help = 'model controller port')
+cont_args = parser.parse_args()
 
 async def connect_mav():
 
-    drone = System(port=50040)
-    await drone.connect(system_address="udp://:14540")
+    drone = System(port=cont_args.uav_port)
+    await drone.connect(system_address=cont_args.uav_add)
 
     print("Waiting for drone to connect...")
     async for state in drone.core.connection_state():
@@ -29,7 +37,7 @@ async def connect_mav():
     #  Socket to talk to server
     print("Connecting to drone model controller server…")
     socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://localhost:5555")
+    socket.connect(f"tcp://localhost:{cont_args.mc_port}")
 
     ## Task list
     mission_task,rtl_task = None,None
