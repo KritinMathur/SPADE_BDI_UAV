@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
 import asyncio
+import zmq
+import zmq.asyncio
 from mavsdk import System
 from mavsdk.mission import (MissionItem, MissionPlan)
-
+import json
 
 async def connect_mav():
 
@@ -22,7 +24,46 @@ async def connect_mav():
             print("Global position estimate ok")
             break
 
-    return drone
+    context = zmq.asyncio.Context()
+
+    #  Socket to talk to server
+    print("Connecting to drone model controller server…")
+    socket = context.socket(zmq.PAIR)
+    socket.connect("tcp://localhost:5555")
+
+    ## Task list
+    mission_task,rtl_task = None,None
+
+    while True:
+        print('controller - waiting to recv')
+        message = await socket.recv()
+        print('controller - received message')
+
+        print("Received [ %s ]" % message)
+        message = message.decode()
+        print(message)
+
+        if str(message) == 'get_telemetry' :
+
+            telem_unit = await get_telemetry(drone)
+            telem_unit = json.dumps(telem_unit)
+    
+            await socket.send(telem_unit.encode())
+
+        if str(message) == 'do_mission' :
+
+            if rtl_task:
+                rtl_task.cancel
+
+            mission_task = asyncio.ensure_future(do_mission(drone))
+
+        if str(message) == 'do_rtl':
+
+            if mission_task:
+                mission_task.cancel()
+
+            rtl_task = asyncio.ensure_future(do_rtl(drone))
+
 
 async def do_takeoff(drone):
     print("-- Arming")

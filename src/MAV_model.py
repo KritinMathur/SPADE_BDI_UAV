@@ -1,20 +1,17 @@
+import os
 import time
-import asyncio
-import aioconsole
 from spade.agent import Agent
 from spade.behaviour import CyclicBehaviour
 from spade_pubsub import PubSubMixin
 import json
-
 import argparse
 import agentspeak
 from spade import quit_spade
 from spade_bdi.bdi import BDIAgent
 import asyncio
+import zmq
+import zmq.asyncio
 
-import MAV_controller
-
-AUTOPILOT = 'PX4'
 HETRO_CHAR = { 'socialization' : 10, 'processing_power' : 20 }
 
 class MAVAgent(PubSubMixin,BDIAgent):
@@ -41,19 +38,22 @@ class MAVAgent(PubSubMixin,BDIAgent):
 
                     if command_gcs['data'] == 'mission':
                         print('Starting mission')
-                        # -> set belief to go_mission uav.agent.bdi.set_belief('mission', 'go')
-                        #asyncio.ensure_future(MAV_controller.do_mission(mav.drone))
+                        
                         mav.bdi.set_belief('go_mission','positive')
 
                     if command_gcs['data'] == 'rtl':
                         print('RTL')
-                        #asyncio.ensure_future(MAV_controller.do_rtl(mav.drone))
+                        
                         mav.bdi.set_belief('rtl','positive')
 
                     if command_gcs['data'] == 'get_info':
                         print('Sending telemetry data')
 
-                        telem_unit = await MAV_controller.get_telemetry(mav.drone)
+                        
+                        await mav.socket.send(b'get_telemetry')
+                        telem_unit = await mav.socket.recv()
+                        telem_unit = telem_unit.decode()
+                        telem_unit = json.loads(telem_unit)
                         print(telem_unit)
 
                         payload = {'ID' : 'test', 'data' : { 'telem' : telem_unit , 'characteristic' : HETRO_CHAR } }
@@ -65,14 +65,18 @@ class MAVAgent(PubSubMixin,BDIAgent):
 
 
     async def setup(self):
+
+        self.context = zmq.asyncio.Context()
+        print("Starting drone model controller server…")
+        self.socket = self.context.socket(zmq.PAIR)
+        self.socket.bind("tcp://*:5555")
+
         print("GCS Agent starting . . .")
         m2g = self.MAVtoGCS()
         self.add_behaviour(m2g)
 
-        
-        self.drone = await MAV_controller.connect_mav()
-
-        await self.pubsub.create('pubsub.localhost', "Telemetry_node")
+        ### NEED TO RUN JUST ONCE ###
+        #await self.pubsub.create('pubsub.localhost', "Telemetry_node")
 
 
     ####BDI###
@@ -80,16 +84,14 @@ class MAVAgent(PubSubMixin,BDIAgent):
 
         @actions.add_function(".mission", (int,))
         def _my_function(x):
-
-            asyncio.ensure_future(MAV_controller.do_mission(mav.drone))
-
+            
+            asyncio.ensure_future(mav.socket.send(b'do_mission'))
             return x
 
         @actions.add_function(".rtl", (int,))
         def _my_function(x):
-
-            asyncio.ensure_future(MAV_controller.do_rtl(mav.drone))
-
+            
+            asyncio.ensure_future(mav.socket.send(b'do_rtl'))
             return x
 
         @actions.add(".reply", 1)
@@ -99,7 +101,23 @@ class MAVAgent(PubSubMixin,BDIAgent):
             yield
 
 if __name__ == "__main__":
-    mav = MAVAgent("test@localhost", "password",'./src/behave.asl')
+
+    global args
+    parser = argparse.ArgumentParser(description='MAV_Model BDI')
+    parser.add_argument('--server', type=str, default="localhost", help='XMPP server address.')
+    parser.add_argument('--name', type=str, default="test", help='XMPP name for the agent.')
+    parser.add_argument('--password', type=str, default="password", help='XMPP password for the agent.')
+    parser.add_argument('--autopilot', type=str, default="px4", help='Agent autopilot software.')
+    parser.add_argument('--uav_add', type =str, default='udp://:14540',help='UAV system address')
+    parser.add_argument('--uav_port', type =int, default=50040, help='MAVSDK Server port (only required for PX4)')
+    args = parser.parse_args()
+
+    
+    if args.autopilot == 'px4':
+        os.system('python3 src/MAV_controller_px4.py --uav_add = {} --uav_port.py = {} &'.format(args.uav_add, args.uav_port))
+    
+
+    mav = MAVAgent("{}@{}".format(args.name, args.server), args.password,'./src/behave.asl')
     future = mav.start()
     future.result()
 
@@ -109,4 +127,7 @@ if __name__ == "__main__":
             time.sleep(1)
     except KeyboardInterrupt:
         print("Stopping...")
+
+    if args.autopilot == 'px4':
+        os.system('pkill -9 -f MAV_controller_px4.py')
     mav.stop()
