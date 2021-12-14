@@ -1,4 +1,4 @@
-go_mission(positive).
+
 
 +go_mission(positive) <-
     .mission(1, R);

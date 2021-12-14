@@ -3,3 +3,5 @@ python3 src/MAV_model.py --name test2 --uav_add udp://:14541 --uav_port 50041 --
 sudo tail /var/log/prosody/prosody.log
 
 sudo service prosody start
+
+Tools/gazebo_sitl_multiple_run.sh -n 3

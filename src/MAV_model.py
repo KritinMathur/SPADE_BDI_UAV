@@ -1,7 +1,9 @@
 import os
 import time
 from spade.agent import Agent
-from spade.behaviour import CyclicBehaviour
+from spade.message import Message
+from spade.template import Template
+from spade.behaviour import CyclicBehaviour,OneShotBehaviour
 from spade_pubsub import PubSubMixin
 import json
 import argparse
@@ -16,10 +18,72 @@ HETRO_CHAR = { 'socialization' : 10, 'processing_power' : 20 }
 
 class MAVAgent(PubSubMixin,BDIAgent):
 
+    class MAVtoMAV(CyclicBehaviour):
+
+        class Handle_Inform(CyclicBehaviour):
+            async def run(self):
+                #Calculate distance between participant & initiator
+                msg = await self.receive(timeout=20)
+                if msg is not None and mav.role == 'initiator':
+                    telem_unit_participant = msg.body
+                    telem_unit_participant = json.loads(telem_unit_participant)
+
+                    #Get telemetry from controller
+                    await mav.socket.send(b'get_telemetry')
+                    telem_unit_initiator = await mav.socket.recv()
+                    telem_unit_initiator = telem_unit_initiator.decode()
+                    telem_unit_initiator = json.loads(telem_unit_initiator)
+
+                    distance_bw_ini_part = telem_unit_initiator['pos']['alt_rel'] - telem_unit_participant['pos']['alt_rel']
+                    print(distance_bw_ini_part)
+                
+                await asyncio.sleep(1)
+
+        class Handle_Request(CyclicBehaviour):
+            async def run(self):
+                #Getting location of participant
+                msg = await self.receive(timeout=20)
+                    
+                if msg is not None and mav.role == 'participant':
+                    print(msg.body)
+                    #Get telemetry from controller
+                    await mav.socket.send(b'get_telemetry')
+                    telem_unit = await mav.socket.recv()
+                    telem_unit = telem_unit.decode()
+                    
+
+                    msg = Message(to=f"{mav.counter_party}@{args.server}")
+                    msg.set_metadata("performative", "inform")
+                    msg.body = telem_unit
+
+                    print('Sending inform from {} to {} '.format(args.name,mav.counter_party))
+                    await self.send(msg)
+
+                await asyncio.sleep(1)
+
+        async def on_start(self):
+
+            print('Starting MAV to MAV behaviour')
+            self.counter = 0
+
+        async def run(self):
+            print("Counter: {}".format(self.counter))
+            self.counter += 1
+            
+            if mav.role == 'initiator' and self.counter % 10 == 0:
+                print(mav.role)
+                msg = Message(to=f"{mav.counter_party}@{args.server}")
+                msg.set_metadata("performative", "request")
+                msg.body = "send_location"  
+                print('Sending request from {} to {} '.format(args.name,mav.counter_party))
+                await self.send(msg)   
+
+            await asyncio.sleep(1)
+
     class MAVtoGCS(CyclicBehaviour):
 
         async def on_start(self):
-            print("Starting behaviour . . .")
+            print('Starting MAV to GCS behaviour')
             self.counter = 0
 
         async def run(self):
@@ -66,14 +130,49 @@ class MAVAgent(PubSubMixin,BDIAgent):
 
     async def setup(self):
 
+        #ROLE DEFINTION
+        if args.name == 'test':
+            self.role = 'initiator'
+            self.counter_party = 'test2'
+        elif args.name == 'test2':
+            self.role = 'participant'
+            self.counter_party = 'test'
+        else:
+            self.role == None
+            self.counter_party = None
+
+        #Drone Model-Controller socket 
         self.context = zmq.asyncio.Context()
         print("Starting drone model controller server…")
         self.socket = self.context.socket(zmq.PAIR)
         self.socket.bind(f"tcp://*:{args.mc_port}")
 
+
+        #Adding behaviours
+
         print("GCS Agent starting . . .")
         m2g = self.MAVtoGCS()
-        self.add_behaviour(m2g)
+        #self.add_behaviour(m2g)
+
+        print("IMAV Agent starting . . .")
+        m2m = self.MAVtoMAV()
+        self.add_behaviour(m2m)
+
+        print('Creating Templates for FIPA . . .')
+        request_template = Template()
+        request_template.set_metadata("performative", "request")
+        inform_template = Template()
+        inform_template.set_metadata("performative", "inform")
+
+        print('Adding FIPA Behvaiours . . .')
+        req_behave = self.MAVtoMAV.Handle_Request()
+        inf_behave = self.MAVtoMAV.Handle_Inform()
+
+        if self.role == 'participant' :
+            self.add_behaviour(req_behave, request_template)
+
+        if self.role == 'initiator' :
+            self.add_behaviour(inf_behave, inform_template)
 
     ####BDI###
     def add_custom_actions(self, actions):
