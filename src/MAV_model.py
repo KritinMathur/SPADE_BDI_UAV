@@ -75,10 +75,6 @@ class MAVAgent(PubSubMixin,BDIAgent):
         m2g = self.MAVtoGCS()
         self.add_behaviour(m2g)
 
-        ### NEED TO RUN JUST ONCE ###
-        #await self.pubsub.create('pubsub.localhost', "Telemetry_node")
-
-
     ####BDI###
     def add_custom_actions(self, actions):
 

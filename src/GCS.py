@@ -44,8 +44,6 @@ class GCSAgent(PubSubMixin,Agent):
         b = self.MyBehav()
         self.add_behaviour(b)
 
-        #await self.pubsub.create('pubsub.localhost', "Cmd_node")
-
 if __name__ == "__main__":
     gcs = GCSAgent("gcs@localhost", "password")
     future = gcs.start()
