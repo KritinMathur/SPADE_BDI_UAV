@@ -1,4 +1,12 @@
-python3 src/MAV_model.py --name test2 --uav_add udp://:14541 --uav_port 50041 --mc_port 5556 
+export PX4_HOME_LAT=2.4713686
+export PX4_HOME_LON=-76.5975746
+
+python3 src/MAV_model.py --name test2 --uav_add udp://:14541 --uav_port 50041 --mc_port 5556
+python3 src/MAV_model.py --name test3 --uav_add udp://:14542 --uav_port 50042 --mc_port 5557
+python3 src/MAV_model.py --name test4 --uav_add udp://:14543 --uav_port 50043 --mc_port 5558
+python3 src/MAV_model.py --name test5 --uav_add udp://:14544 --uav_port 50044 --mc_port 5559
+ 
+prosodyctl adduser me@example.com
 
 sudo tail /var/log/prosody/prosody.log
 
