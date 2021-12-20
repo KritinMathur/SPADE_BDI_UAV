@@ -12,6 +12,7 @@ ansimarkup==1.5.0
 arrow==1.2.1
 async-timeout==3.0.1
 attrs==21.2.0
+autopep8==1.6.0
 Babel==2.9.1
 better-exceptions-fork==0.2.1.post6
 bondpy==1.8.6
@@ -57,12 +58,14 @@ multidict==4.5.2
 protobuf==3.19.1
 pyasn1==0.4.7
 pyasn1-modules==0.2.7
+pycodestyle==2.8.0
 pycparser==2.21
 Pygments==2.10.0
 pyOpenSSL==21.0.0
 python-dateutil==2.8.2
 python-qt-binding==0.4.3
 pytz==2021.3
+pyzmq==22.3.0
 qt-dotgraph==0.4.2
 qt-gui==0.4.2
 qt-gui-cpp==0.4.2
@@ -139,6 +142,7 @@ tf2-kdl==0.7.5
 tf2-py==0.7.5
 tf2-ros==0.7.5
 timeago==1.0.8
+toml==0.10.2
 topic-tools==1.15.11
 typing-extensions==4.0.1
 tzlocal==2.1

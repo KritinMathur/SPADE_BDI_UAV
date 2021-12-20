@@ -181,7 +181,7 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
         print("GCS Agent starting . . .")
         m2g = self.MAVtoGCS()
-        # self.add_behaviour(m2g)
+        self.add_behaviour(m2g)
 
         print("IMAV Agent starting . . .")
         m2m = self.MAVtoMAV()
