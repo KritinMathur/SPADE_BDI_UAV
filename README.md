@@ -139,7 +139,7 @@ cd path/to/SPADE_BDI_UAV
 python3 src/MAV_model.py --name test3 --uav_add udp://:14542 --uav_port 50042 --mc_port 5557
 ```
 
-8. On a new terminal, execute agent `Coordinator 3` with JID = `test4`.
+6. On a new terminal, execute agent `Coordinator 3` with JID = `test4`.
 
 ```bash
 cd path/to/SPADE_BDI_UAV
@@ -153,14 +153,14 @@ cd path/to/SPADE_BDI_UAV
 python3 src/MAV_model.py --name test5 --uav_add udp://:14544 --uav_port 50044 --mc_port 5559
 ```
 
-1. On a new terminal, run `GCS`
+8. On a new terminal, run `GCS`
 
 ```bash
 cd path/to/SPADE_BDI_UAV
 python3 src/GCS.py
 ```
 
-6. The execution of GCS.py, take ID and Command as input. 
+9. The execution of GCS.py, take ID and Command as input. 
    * ID can be `test`,`test2`,etc to refer to UAV1,UAV2,etc respectively.
    * Command can be `mission`, `rtl` or `get_info`.
 
