@@ -163,6 +163,7 @@ python3 src/GCS.py
 9. The execution of GCS.py, take ID and Command as input. 
    * ID can be `test`,`test2`,etc to refer to UAV1,UAV2,etc respectively.
    * Command can be `mission`, `rtl` or `get_info`.
+   * For auction simulation. enter ID as `start_auction`.
 
 
 ## Roadmap
@@ -180,6 +181,10 @@ python3 src/GCS.py
   - [ ] Communication restriction
   - [ ] Record labels and warning
   - [ ] Registering transactions
+- [ ] Sprint 3 - Coverage MissionPlan
+  - [ ] Ground station auction
+  - [ ] Ground station controller
+
 
 
 
