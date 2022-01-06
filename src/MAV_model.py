@@ -22,55 +22,56 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
     class MAVtoMAV(CyclicBehaviour):
 
-        class Handle_Inform(CyclicBehaviour):
-            async def run(self):
-                
-                msg = await self.receive()
-                if msg is not None and mav.role == 'initiator':
+        class FIPA_ACL:
+            class Handle_Inform(CyclicBehaviour):
+                async def run(self):
+                    
+                    msg = await self.receive()
+                    if msg is not None and mav.role == 'initiator':
 
-                    distance_bw_ini_part = float(msg.body)
-                    print("Distance between {} and {} = {} ".format(args.name,msg.sender,distance_bw_ini_part))
+                        distance_bw_ini_part = float(msg.body)
+                        print("Distance between {} and {} = {} ".format(args.name,msg.sender,distance_bw_ini_part))
 
-                await asyncio.sleep(1)
+                    await asyncio.sleep(1)
 
-        class Handle_Request(CyclicBehaviour):
-            async def run(self):
-                # Getting location of participant
-                msg = await self.receive()
+            class Handle_Request(CyclicBehaviour):
+                async def run(self):
+                    # Getting location of participant
+                    msg = await self.receive()
 
-                if msg is not None and mav.role == 'participant':
+                    if msg is not None and mav.role == 'participant':
 
-                    telem_unit_initiator = msg.body
-                    telem_unit_initiator = json.loads(telem_unit_initiator)
+                        telem_unit_initiator = msg.body
+                        telem_unit_initiator = json.loads(telem_unit_initiator)
 
-                    # Get telemetry from controller
-                    await mav.socket.send(b'get_telemetry')
-                    telem_unit_participant = await mav.socket.recv()
-                    telem_unit_participant = telem_unit_participant.decode()
-                    print(telem_unit_participant)
-                    telem_unit_participant = json.loads(telem_unit_participant)
-                    print(telem_unit_participant)
+                        # Get telemetry from controller
+                        await mav.socket.send(b'get_telemetry')
+                        telem_unit_participant = await mav.socket.recv()
+                        telem_unit_participant = telem_unit_participant.decode()
+                        print(telem_unit_participant)
+                        telem_unit_participant = json.loads(telem_unit_participant)
+                        print(telem_unit_participant)
 
-                    lat1 = telem_unit_initiator['pos']['lat']
-                    lon1 = telem_unit_initiator['pos']['lon']
-                    lat2 = telem_unit_participant['pos']['lat']
-                    lon2 = telem_unit_participant['pos']['lon']
+                        lat1 = telem_unit_initiator['pos']['lat']
+                        lon1 = telem_unit_initiator['pos']['lon']
+                        lat2 = telem_unit_participant['pos']['lat']
+                        lon2 = telem_unit_participant['pos']['lon']
 
-                    # Calculate distance between participant & initiator
-                    distance_bw_ini_part = geospatial.distance(lat1,lat2,lon1,lon2)
-                    #print(distance_bw_ini_part)
+                        # Calculate distance between participant & initiator
+                        distance_bw_ini_part = geospatial.distance(lat1,lat2,lon1,lon2)
+                        #print(distance_bw_ini_part)
 
-                    if distance_bw_ini_part <= 150:
-                        
-                        sender_JID = msg.sender
-                        msg = Message(to=f"{sender_JID}@{args.server}")
-                        msg.set_metadata("performative", "inform")
-                        msg.body = str(distance_bw_ini_part)
+                        if distance_bw_ini_part <= 150:
+                            
+                            sender_JID = msg.sender
+                            msg = Message(to=f"{sender_JID}@{args.server}")
+                            msg.set_metadata("performative", "inform")
+                            msg.body = str(distance_bw_ini_part)
 
-                        print('Sending inform from {} to {} '.format(args.name, sender_JID))
-                        await self.send(msg)
+                            print('Sending inform from {} to {} '.format(args.name, sender_JID))
+                            await self.send(msg)
 
-                await asyncio.sleep(1)
+                    await asyncio.sleep(1)
 
         async def on_start(self):
 
@@ -102,6 +103,105 @@ class MAVAgent(PubSubMixin, BDIAgent):
             await asyncio.sleep(1)
 
     class MAVtoGCS(CyclicBehaviour):
+
+        class FIPA_Task_auction:
+            class Handel_start_auction(CyclicBehaviour):
+                async def run(self):
+                    msg = await self.receive()
+                    if msg is not None:
+                        print(f'IN - Start Auction from {mav.gcs_name} to {args.name}')
+                        print(f'OUT - Online from {args.name} to {mav.gcs_name}')
+                        msg = Message(to=f"{mav.gcs_name}@{args.server}")
+                        msg.set_metadata("performative", "online")
+                        msg.body = args.name
+                        await self.send(msg)
+
+                    await asyncio.sleep(1)
+
+            class Handel_task_cost(CyclicBehaviour):
+                async def run(self):
+                    msg = await self.receive()
+                    if msg is not None:
+                        print(f'IN - Task Cost from {mav.gcs_name} to {args.name}')
+                        
+
+                        # Bid calculation
+                        task_cost = int(msg.body)
+                        if args.name == 'test':
+                            score = int('1')
+                        elif args.name == 'test2':
+                            score = int('2')
+                        elif args.name == 'test3':
+                            score = int('3')
+                        else:
+                            score = int('3')
+                            
+                        bid = task_cost - score
+
+                        print(task_cost, score, bid)
+
+                        print(f'OUT - Bids from {args.name} to {mav.gcs_name}')
+                        msg = Message(to=f"{mav.gcs_name}@{args.server}")
+                        msg.set_metadata("performative", "bids")
+                        msg.body = json.dumps({'name':args.name,'data':bid})
+                        await self.send(msg)
+
+                    await asyncio.sleep(1)
+
+            class Handel_reject_bid(CyclicBehaviour):
+                async def run(self):
+                    msg = await self.receive()
+                    if msg is not None:
+                        print(f'IN - Reject Bid from {mav.gcs_name} to {args.name}')
+
+                    await asyncio.sleep(1)
+
+            class Handel_accept_bid(CyclicBehaviour):
+                async def run(self):
+                    msg = await self.receive()
+                    if msg is not None:
+                        print(f'IN - Accept Bid from {mav.gcs_name} to {args.name}')
+
+                    await asyncio.sleep(1)
+
+            class Handel_threshold_plus(CyclicBehaviour):    
+                async def run(self):
+                    msg = await self.receive()
+                    if msg is not None:
+
+                        print(f'IN - Threshold Plus from {mav.gcs_name} to {args.name}')
+                        
+
+                        # Bid calculation
+                        task_cost = int(msg.body)
+                        if args.name == 'test':
+                            score = int('1')
+                        elif args.name == 'test2':
+                            score = int('2')
+                        elif args.name == 'test3':
+                            score = int('3')
+                        else:
+                            score = int('4')
+                            
+                        bid = task_cost - score
+
+                        print(task_cost, score, bid)
+
+                        print(f'OUT - Bids from {args.name} to {mav.gcs_name}')
+                        msg = Message(to=f"{mav.gcs_name}@{args.server}")
+                        msg.set_metadata("performative", "bids")
+                        msg.body = json.dumps({'name':args.name,'data':bid})
+                        await self.send(msg)
+
+                    await asyncio.sleep(1)
+
+            class Handel_allocate_task(CyclicBehaviour):
+                async def run(self):
+                    msg = await self.receive()
+                    if msg is not None:
+                        print(f'IN - Allocate Task from {mav.gcs_name} to {args.name}')
+
+                    await asyncio.sleep(1)
 
         async def on_start(self):
             print('Starting MAV to GCS behaviour')
@@ -163,6 +263,8 @@ class MAVAgent(PubSubMixin, BDIAgent):
         else:
             self.role == None
             self.counter_party = None
+
+        self.gcs_name = 'gcs'
         
         #Neighbour definition
         for counter_party in self.counter_parties:
@@ -183,25 +285,57 @@ class MAVAgent(PubSubMixin, BDIAgent):
         m2g = self.MAVtoGCS()
         self.add_behaviour(m2g)
 
+        '''
         print("IMAV Agent starting . . .")
         m2m = self.MAVtoMAV()
         self.add_behaviour(m2m)
+        '''
 
         print('Creating Templates for FIPA . . .')
         request_template = Template()
         request_template.set_metadata("performative", "request")
         inform_template = Template()
         inform_template.set_metadata("performative", "inform")
+        
+        CNP_start_auction_template = Template()
+        CNP_start_auction_template.set_metadata("performative","start_auction")
+        CNP_task_cost_template = Template()
+        CNP_task_cost_template.set_metadata("performative","task_cost")
+        CNP_reject_bid_template = Template()
+        CNP_reject_bid_template.set_metadata("performative","reject_bid")
+        CNP_accept_bid_template = Template()
+        CNP_accept_bid_template.set_metadata("performative","accept_bid")
+        CNP_threshold_plus_template = Template()
+        CNP_threshold_plus_template.set_metadata("performative","threshold_plus")
+        CNP_allocate_task_template = Template()
+        CNP_allocate_task_template.set_metadata("performative","allocate_task")
 
         print('Adding FIPA Behvaiours . . .')
-        req_behave = self.MAVtoMAV.Handle_Request()
-        inf_behave = self.MAVtoMAV.Handle_Inform()
+        req_behave = self.MAVtoMAV.FIPA_ACL.Handle_Request()
+        inf_behave = self.MAVtoMAV.FIPA_ACL.Handle_Inform()
 
+        CNP_start_auction_behave = self.MAVtoGCS.FIPA_Task_auction.Handel_start_auction()
+        CNP_task_cost_behave = self.MAVtoGCS.FIPA_Task_auction.Handel_task_cost()
+        CNP_reject_bid_behave = self.MAVtoGCS.FIPA_Task_auction.Handel_reject_bid()
+        CNP_accept_bid_behave = self.MAVtoGCS.FIPA_Task_auction.Handel_accept_bid()
+        CNP_threshold_plus_behave = self.MAVtoGCS.FIPA_Task_auction.Handel_threshold_plus()
+        CNP_allocate_task_behave = self.MAVtoGCS.FIPA_Task_auction.Handel_allocate_task()
+
+        self.add_behaviour(CNP_start_auction_behave, CNP_start_auction_template)
+        self.add_behaviour(CNP_task_cost_behave, CNP_task_cost_template)
+        self.add_behaviour(CNP_reject_bid_behave, CNP_reject_bid_template)
+        self.add_behaviour(CNP_accept_bid_behave, CNP_accept_bid_template)
+        self.add_behaviour(CNP_threshold_plus_behave, CNP_threshold_plus_template)
+        self.add_behaviour(CNP_allocate_task_behave, CNP_allocate_task_template)
+
+        '''
         if self.role == 'participant':
             self.add_behaviour(req_behave, request_template)
 
         if self.role == 'initiator':
             self.add_behaviour(inf_behave, inform_template)
+
+        '''
 
     ####BDI###
     def add_custom_actions(self, actions):
