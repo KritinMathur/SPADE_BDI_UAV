@@ -13,3 +13,19 @@ sudo tail /var/log/prosody/prosody.log
 sudo service prosody start
 
 Tools/gazebo_sitl_multiple_run.sh -n 3
+
+pyuic5 -x -o ./src/gui/GCS.py ./src/gui/GCS.ui
+
+log looks like :
+[MAV1_Px4] - Master - State - GPS/Battery/Speed - Info/Alerts/Errors
+
+[MAV2_Ardupilot] - Coordinator - Task - visitied WP - Current WP
+
+{MAV Name} - {MAV Role} - Neighbors - number of links - Info
+
+{MAV Name} - {MAV Role} - Transaction - query/requests/contractnet/propose/warning
+
+auction look like :
+
+MAV1_Px4 - M1
+MAV2_Ardupilot - M2

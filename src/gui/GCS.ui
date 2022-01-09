@@ -26,7 +26,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="AllTabWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -36,13 +36,13 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>4</number>
+     <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="MAV_tab">
      <attribute name="title">
       <string>MAV</string>
      </attribute>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="connected_mav_label">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -55,7 +55,7 @@
        <string>Connected MAVs :</string>
       </property>
      </widget>
-     <widget class="QListWidget" name="listWidget">
+     <widget class="QListWidget" name="connected_mav_list">
       <property name="geometry">
        <rect>
         <x>15</x>
@@ -64,18 +64,8 @@
         <height>591</height>
        </rect>
       </property>
-      <item>
-       <property name="text">
-        <string>MAV1_Px4</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>MAV2_Ardupilot</string>
-       </property>
-      </item>
      </widget>
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="MAV_Information_frame">
       <property name="geometry">
        <rect>
         <x>380</x>
@@ -90,7 +80,7 @@
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QGroupBox" name="groupBox">
+      <widget class="QGroupBox" name="Characteristics_groupBox">
        <property name="geometry">
         <rect>
          <x>410</x>
@@ -102,7 +92,7 @@
        <property name="title">
         <string>Characteristics</string>
        </property>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="socialization_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -115,7 +105,7 @@
          <string>Socialization</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_13">
+       <widget class="QLabel" name="flight_time_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -128,7 +118,7 @@
          <string>Flight Time (in min)</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_14">
+       <widget class="QLabel" name="processing_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -141,7 +131,7 @@
          <string>Processing</string>
         </property>
        </widget>
-       <widget class="QLCDNumber" name="lcdNumber_6">
+       <widget class="QLCDNumber" name="socialization_lcdNumber">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -151,7 +141,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLCDNumber" name="lcdNumber_8">
+       <widget class="QLCDNumber" name="processing_lcdNumber">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -161,7 +151,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLCDNumber" name="lcdNumber_9">
+       <widget class="QLCDNumber" name="flight_time_lcdNumber">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -172,7 +162,7 @@
         </property>
        </widget>
       </widget>
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="QGroupBox" name="Telemetry_groupBox">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -184,7 +174,7 @@
        <property name="title">
         <string>Telemetry</string>
        </property>
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="QGroupBox" name="geo_location_groupBox">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -196,7 +186,7 @@
         <property name="title">
          <string>Geo - Location</string>
         </property>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="latitude_label">
          <property name="geometry">
           <rect>
            <x>11</x>
@@ -209,7 +199,7 @@
           <string>Latitude</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_5">
+        <widget class="QLabel" name="longitude_label">
          <property name="geometry">
           <rect>
            <x>11</x>
@@ -222,7 +212,7 @@
           <string>Longitude</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="altitude_abs_label">
          <property name="geometry">
           <rect>
            <x>11</x>
@@ -235,7 +225,7 @@
           <string>Altitude (absolute)</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_7">
+        <widget class="QLabel" name="altitude_rel_label">
          <property name="geometry">
           <rect>
            <x>11</x>
@@ -248,7 +238,7 @@
           <string>Altitude (relative)</string>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdNumber">
+        <widget class="QLCDNumber" name="latitude_lcdNumber">
          <property name="geometry">
           <rect>
            <x>129</x>
@@ -258,7 +248,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdNumber_2">
+        <widget class="QLCDNumber" name="longitude_lcdNumber">
          <property name="geometry">
           <rect>
            <x>129</x>
@@ -268,7 +258,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdNumber_3">
+        <widget class="QLCDNumber" name="altitude_abs_lcdNumber">
          <property name="geometry">
           <rect>
            <x>129</x>
@@ -278,7 +268,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdNumber_4">
+        <widget class="QLCDNumber" name="altitude_rel_lcdNumber">
          <property name="geometry">
           <rect>
            <x>129</x>
@@ -289,7 +279,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QGroupBox" name="groupBox_5">
+       <widget class="QGroupBox" name="Battery_groupBox">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -301,7 +291,7 @@
         <property name="title">
          <string>Battery</string>
         </property>
-        <widget class="QLCDNumber" name="lcdNumber_5">
+        <widget class="QLCDNumber" name="voltage_lcdNumber">
          <property name="geometry">
           <rect>
            <x>130</x>
@@ -311,7 +301,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLCDNumber" name="lcdNumber_7">
+        <widget class="QLCDNumber" name="remaining_perc_lcdNumber">
          <property name="geometry">
           <rect>
            <x>130</x>
@@ -321,7 +311,7 @@
           </rect>
          </property>
         </widget>
-        <widget class="QLabel" name="label_9">
+        <widget class="QLabel" name="remaining_perc_label">
          <property name="geometry">
           <rect>
            <x>15</x>
@@ -334,7 +324,7 @@
           <string>Remaining %</string>
          </property>
         </widget>
-        <widget class="QLabel" name="label_8">
+        <widget class="QLabel" name="volatge_label">
          <property name="geometry">
           <rect>
            <x>15</x>
@@ -348,7 +338,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="flight_status_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -361,7 +351,7 @@
          <string>Flight Status</string>
         </property>
        </widget>
-       <widget class="QTextBrowser" name="textBrowser">
+       <widget class="QTextBrowser" name="flight_status_textBrowser">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -375,10 +365,10 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In Air&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_11">
+       <widget class="QLabel" name="flight_mode_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -391,7 +381,7 @@ p, li { white-space: pre-wrap; }
          <string>Flight Mode</string>
         </property>
        </widget>
-       <widget class="QTextBrowser" name="textBrowser_2">
+       <widget class="QTextBrowser" name="flight_mode_textBrowser">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -405,12 +395,11 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Mission&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </widget>
-      <widget class="QGroupBox" name="groupBox_3">
+      <widget class="QGroupBox" name="RoleMission_groupBox">
        <property name="geometry">
         <rect>
          <x>410</x>
@@ -422,7 +411,7 @@ p, li { white-space: pre-wrap; }
        <property name="title">
         <string>Role and Mission</string>
        </property>
-       <widget class="QProgressBar" name="progressBar">
+       <widget class="QProgressBar" name="mission_progress_progressBar">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -432,13 +421,13 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
         <property name="value">
-         <number>25</number>
+         <number>0</number>
         </property>
         <property name="invertedAppearance">
          <bool>false</bool>
         </property>
        </widget>
-       <widget class="QLabel" name="label_15">
+       <widget class="QLabel" name="mission_progress_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -451,7 +440,7 @@ p, li { white-space: pre-wrap; }
          <string>Mission Progress</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_16">
+       <widget class="QLabel" name="allocated_role_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -464,7 +453,7 @@ p, li { white-space: pre-wrap; }
          <string>Allocated Role</string>
         </property>
        </widget>
-       <widget class="QTextBrowser" name="textBrowser_3">
+       <widget class="QTextBrowser" name="allocated_role_textBrowser">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -478,10 +467,10 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Master&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_17">
+       <widget class="QLabel" name="current_waypoint_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -494,7 +483,7 @@ p, li { white-space: pre-wrap; }
          <string>Current Waypoint</string>
         </property>
        </widget>
-       <widget class="QLCDNumber" name="lcdNumber_10">
+       <widget class="QLCDNumber" name="current_waypoint_lcdNumber">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -504,7 +493,7 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_18">
+       <widget class="QLabel" name="mission_length_label">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -517,7 +506,7 @@ p, li { white-space: pre-wrap; }
          <string>Mission Length</string>
         </property>
        </widget>
-       <widget class="QLCDNumber" name="lcdNumber_11">
+       <widget class="QLCDNumber" name="mission_length_lcdNumber">
         <property name="geometry">
          <rect>
           <x>140</x>
@@ -527,9 +516,39 @@ p, li { white-space: pre-wrap; }
          </rect>
         </property>
        </widget>
+       <widget class="QLabel" name="autopilot_label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>70</y>
+          <width>91</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Autopilot</string>
+        </property>
+       </widget>
+       <widget class="QTextBrowser" name="autopilot_textBrowser">
+        <property name="geometry">
+         <rect>
+          <x>140</x>
+          <y>70</y>
+          <width>181</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="html">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </widget>
      </widget>
-     <widget class="Line" name="line">
+     <widget class="Line" name="connected_mav_line">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -542,7 +561,7 @@ p, li { white-space: pre-wrap; }
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
-     <widget class="Line" name="line_2">
+     <widget class="Line" name="mav_information_line">
       <property name="geometry">
        <rect>
         <x>380</x>
@@ -555,7 +574,7 @@ p, li { white-space: pre-wrap; }
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="mav_information_label">
       <property name="geometry">
        <rect>
         <x>380</x>
@@ -577,16 +596,29 @@ p, li { white-space: pre-wrap; }
         <height>25</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="connected_mav_horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="add_mav_pushButton">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="edit_mav_pushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Edit</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="remove_mav_pushButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Remove</string>
          </property>
@@ -594,75 +626,22 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>650</y>
-        <width>761</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <item alignment="Qt::AlignRight">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Type :</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBox">
-         <item>
-          <property name="text">
-           <string>PX4</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Ardupilot</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_3">
-         <property name="text">
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="Plan_tab">
      <attribute name="title">
       <string>Plan</string>
      </attribute>
-     <widget class="QLabel" name="label_19">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>1161</width>
-        <height>701</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>[MAP]</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="Missions_frame">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>20</y>
         <width>271</width>
         <height>431</height>
        </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -670,7 +649,7 @@ p, li { white-space: pre-wrap; }
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QListWidget" name="listWidget_2">
+      <widget class="QListWidget" name="missions_listWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -679,23 +658,8 @@ p, li { white-space: pre-wrap; }
          <height>321</height>
         </rect>
        </property>
-       <item>
-        <property name="text">
-         <string>M1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>M2</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>M3</string>
-        </property>
-       </item>
       </widget>
-      <widget class="QLabel" name="label_20">
+      <widget class="QLabel" name="missions_label">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -708,7 +672,7 @@ p, li { white-space: pre-wrap; }
         <string>MIssions :</string>
        </property>
       </widget>
-      <widget class="Line" name="line_3">
+      <widget class="Line" name="missions_line">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -730,23 +694,29 @@ p, li { white-space: pre-wrap; }
          <height>37</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <layout class="QHBoxLayout" name="missions_horizontalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton_6">
+         <widget class="QPushButton" name="draw_mission_pushButton">
           <property name="text">
            <string>Draw New</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="edit_mission_pushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Edit</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="remove_mission_pushButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Remove</string>
           </property>
@@ -755,12 +725,24 @@ p, li { white-space: pre-wrap; }
        </layout>
       </widget>
      </widget>
+     <widget class="QWidget" name="plan_map_widget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>-1</y>
+        <width>1161</width>
+        <height>701</height>
+       </rect>
+      </property>
+     </widget>
+     <zorder>plan_map_widget</zorder>
+     <zorder>Missions_frame</zorder>
     </widget>
-    <widget class="QWidget" name="tab_4">
+    <widget class="QWidget" name="Auction_tab">
      <attribute name="title">
       <string>Auction</string>
      </attribute>
-     <widget class="QTreeWidget" name="treeWidget">
+     <widget class="QTreeWidget" name="role_allocation_treeWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -790,118 +772,8 @@ p, li { white-space: pre-wrap; }
         <string>Allocated Mission</string>
        </property>
       </column>
-      <item>
-       <property name="text">
-        <string>Master</string>
-       </property>
-       <property name="text">
-        <string>MAV1_Px4</string>
-       </property>
-       <property name="text">
-        <string>M1</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>C1</string>
-        </property>
-        <property name="text">
-         <string>MAV2_ardupilot</string>
-        </property>
-        <property name="text">
-         <string>M2</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>A1.1</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="text">
-          <string>M3</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>A1.2</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="text">
-          <string>M4</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>C2</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string>None</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>A2.1</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>A2.2</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>A2.3</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-       </item>
-       <item>
-        <property name="text">
-         <string>C3</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="text">
-         <string>None</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>A3.1</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-       </item>
-      </item>
      </widget>
-     <widget class="QFrame" name="frame_3">
+     <widget class="QFrame" name="Role_frame">
       <property name="geometry">
        <rect>
         <x>630</x>
@@ -916,13 +788,13 @@ p, li { white-space: pre-wrap; }
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QGroupBox" name="groupBox_6">
+      <widget class="QGroupBox" name="Role_allocator_groupBox">
        <property name="geometry">
         <rect>
          <x>20</x>
          <y>10</y>
          <width>471</width>
-         <height>231</height>
+         <height>261</height>
         </rect>
        </property>
        <property name="title">
@@ -937,16 +809,16 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <layout class="QHBoxLayout" name="Selected_role_horizontalLayout">
          <item>
-          <widget class="QLabel" name="label_22">
+          <widget class="QLabel" name="selected_role_label">
            <property name="text">
             <string>Selected Role :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_3">
+          <widget class="QComboBox" name="selected_role_comboBox">
            <item>
             <property name="text">
              <string>Master</string>
@@ -966,11 +838,14 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QPushButton" name="pushButton_8">
+       <widget class="QPushButton" name="set_role_pushButton">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>180</y>
+          <y>210</y>
           <width>431</width>
           <height>23</height>
          </rect>
@@ -988,32 +863,16 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <layout class="QHBoxLayout" name="Parent_mav_horizontalLayout">
          <item>
-          <widget class="QLabel" name="label_23">
+          <widget class="QLabel" name="parent_mav_label">
            <property name="text">
             <string>Parent MAV :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_4">
-           <item>
-            <property name="text">
-             <string>[NONE]</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>MAV2_Ardupilot</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>MAV1_PX4</string>
-            </property>
-           </item>
-          </widget>
+          <widget class="QComboBox" name="parent_mav_comboBox"/>
          </item>
         </layout>
        </widget>
@@ -1026,24 +885,41 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <layout class="QHBoxLayout" name="Mav_name_horizontalLayout">
          <item>
-          <widget class="QLabel" name="label_21">
+          <widget class="QLabel" name="mav_name_label">
            <property name="text">
             <string>MAV Name :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_2">
+          <widget class="QComboBox" name="mav_name_comboBox"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="layoutWidget_6">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>170</y>
+          <width>431</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="MMU_horizontalLayout">
+         <item>
+          <widget class="QLabel" name="MMU_label">
+           <property name="text">
+            <string>Manual Mission Upload (Optional) :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="MMU_comboBox">
            <item>
             <property name="text">
-             <string>MAV1_Px4</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>MAV2_Ardupilot</string>
+             <string>SKIP</string>
             </property>
            </item>
           </widget>
@@ -1051,13 +927,16 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </widget>
-      <widget class="QPushButton" name="pushButton_7">
+      <widget class="QPushButton" name="start_auction_pushButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>550</y>
+         <y>560</y>
          <width>471</width>
-         <height>111</height>
+         <height>81</height>
         </rect>
        </property>
        <property name="text">
@@ -1066,34 +945,21 @@ p, li { white-space: pre-wrap; }
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_3">
+    <widget class="QWidget" name="Mission_tab">
      <attribute name="title">
       <string>Mission</string>
      </attribute>
-     <widget class="QLabel" name="label_24">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>1161</width>
-        <height>701</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>[MAP]</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QFrame" name="frame_4">
+     <widget class="QFrame" name="Action_frame">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>20</y>
         <width>271</width>
         <height>221</height>
        </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
       </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
@@ -1101,7 +967,7 @@ p, li { white-space: pre-wrap; }
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_25">
+      <widget class="QLabel" name="action_label">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1114,7 +980,7 @@ p, li { white-space: pre-wrap; }
         <string>Action :</string>
        </property>
       </widget>
-      <widget class="Line" name="line_4">
+      <widget class="Line" name="action_line">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1127,7 +993,7 @@ p, li { white-space: pre-wrap; }
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1136,11 +1002,11 @@ p, li { white-space: pre-wrap; }
          <height>151</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="Action_verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <layout class="QHBoxLayout" name="Action_horizontalLayout">
           <item>
-           <widget class="QLabel" name="label_26">
+           <widget class="QLabel" name="mav_name_action_label">
             <property name="maximumSize">
              <size>
               <width>75</width>
@@ -1153,20 +1019,10 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="comboBox_5">
+           <widget class="QComboBox" name="mav_name_action_comboBox">
             <item>
              <property name="text">
               <string>[All]</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>MAV1_Px4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>MAV2_Ardupilot</string>
              </property>
             </item>
            </widget>
@@ -1174,28 +1030,28 @@ p, li { white-space: pre-wrap; }
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_11">
+         <widget class="QPushButton" name="do_mission_pushButton">
           <property name="text">
            <string>Do Mission</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_12">
+         <widget class="QPushButton" name="pause_missions_pushButton">
           <property name="text">
            <string>Pause Mission</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_10">
+         <widget class="QPushButton" name="land_pushButton">
           <property name="text">
            <string>Land</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_9">
+         <widget class="QPushButton" name="rtl_pushButton">
           <property name="text">
            <string>RTL</string>
           </property>
@@ -1204,13 +1060,30 @@ p, li { white-space: pre-wrap; }
        </layout>
       </widget>
      </widget>
-     <widget class="QFrame" name="frame_5">
+     <widget class="QWidget" name="missions_map_widget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>-1</y>
+        <width>1161</width>
+        <height>701</height>
+       </rect>
+      </property>
+     </widget>
+     <zorder>missions_map_widget</zorder>
+     <zorder>Action_frame</zorder>
+    </widget>
+    <widget class="QWidget" name="Analyze_tab">
+     <attribute name="title">
+      <string>Analyze</string>
+     </attribute>
+     <widget class="QFrame" name="Logs_frame">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>250</y>
-        <width>271</width>
-        <height>441</height>
+        <y>10</y>
+        <width>1131</width>
+        <height>261</height>
        </rect>
       </property>
       <property name="frameShape">
@@ -1219,7 +1092,7 @@ p, li { white-space: pre-wrap; }
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_27">
+      <widget class="QLabel" name="logs_label">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1229,15 +1102,15 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <property name="text">
-        <string>Log :</string>
+        <string>Logs :</string>
        </property>
       </widget>
-      <widget class="Line" name="line_5">
+      <widget class="Line" name="logs_line">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>241</width>
+         <width>1101</width>
          <height>16</height>
         </rect>
        </property>
@@ -1245,13 +1118,13 @@ p, li { white-space: pre-wrap; }
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
-      <widget class="QTextBrowser" name="textBrowser_4">
+      <widget class="QTextBrowser" name="logs_textBrowser">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>50</y>
-         <width>241</width>
-         <height>381</height>
+         <width>1101</width>
+         <height>191</height>
         </rect>
        </property>
        <property name="html">
@@ -1259,23 +1132,167 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;[MAV1_Px4] - Master - State - GPS/Battery/Speed - Info/Alerts/Errors&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;[MAV2_Ardupilot] - Coordinator - Task - visitied WP - Current WP&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;{MAV Name} - {MAV Role} - Neighbors - number of links - Info&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;{MAV Name} - {MAV Role} - Transaction - query/requests/contractnet/propose/warning&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </widget>
+     <widget class="QFrame" name="Plots_frame">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>290</y>
+        <width>1131</width>
+        <height>401</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="plots_label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>241</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Plots :</string>
+       </property>
+      </widget>
+      <widget class="Line" name="plots_line">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>1101</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+      <widget class="QFrame" name="Plots_telem_frame">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>50</y>
+         <width>771</width>
+         <height>341</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QWidget" name="plots_telem_widget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>741</width>
+          <height>321</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="MAV_name_plots_groupBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>141</width>
+         <height>321</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>MAV Name</string>
+       </property>
+       <widget class="QListWidget" name="mav_name_plots_listWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>121</width>
+          <height>281</height>
+         </rect>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::MultiSelection</enum>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QGroupBox" name="Parameters_groupBox">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>60</y>
+         <width>131</width>
+         <height>321</height>
+        </rect>
+       </property>
+       <property name="title">
+        <string>Parameters</string>
+       </property>
+       <widget class="QListWidget" name="parameters_listWidget">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>111</width>
+          <height>281</height>
+         </rect>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <item>
+         <property name="text">
+          <string>Altitude [ABS]</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Altitude [REL]</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Roll</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Pitch</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Yaw</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Battery</string>
+         </property>
+        </item>
+       </widget>
+      </widget>
+     </widget>
     </widget>
-    <widget class="QWidget" name="tab_5">
+    <widget class="QWidget" name="Simulate_tab">
      <attribute name="title">
       <string>Simulate</string>
      </attribute>
-     <widget class="QFrame" name="frame_6">
+     <widget class="QFrame" name="Manage_stil_frame">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1290,7 +1307,7 @@ p, li { white-space: pre-wrap; }
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QGroupBox" name="groupBox_7">
+      <widget class="QGroupBox" name="Manage_sitl_groupBox">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -1302,7 +1319,7 @@ p, li { white-space: pre-wrap; }
        <property name="title">
         <string>Manage SITL:</string>
        </property>
-       <widget class="QGroupBox" name="groupBox_10">
+       <widget class="QGroupBox" name="Add_sim_groupBox">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -1314,7 +1331,7 @@ p, li { white-space: pre-wrap; }
         <property name="title">
          <string>Add Simulated MAV</string>
         </property>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>10</x>
@@ -1323,41 +1340,41 @@ p, li { white-space: pre-wrap; }
            <height>111</height>
           </rect>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="spinBox_2"/>
-          </item>
+         <layout class="QGridLayout" name="Add_sim_gridLayout">
           <item row="0" column="0">
-           <widget class="QLabel" name="label_33">
+           <widget class="QLabel" name="px4_sim_label">
             <property name="text">
              <string>PX4</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_34">
-            <property name="text">
-             <string>Ardupilot</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="label_35">
+           <widget class="QLabel" name="dji_sim_label">
             <property name="text">
              <string>_future_ (DJI, Parrot)</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="spinBox_3"/>
+           <widget class="QSpinBox" name="dji_sim_spinBox"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="ardupilot_sim_spinBox"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="ardupilot_sim_label">
+            <property name="text">
+             <string>Ardupilot</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="px4_sim_spinBox"/>
           </item>
          </layout>
         </widget>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>380</x>
@@ -1366,16 +1383,16 @@ p, li { white-space: pre-wrap; }
           <height>91</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <layout class="QVBoxLayout" name="Add_sim_verticalLayout">
          <item>
-          <widget class="QPushButton" name="pushButton_16">
+          <widget class="QPushButton" name="start_sim_pushButton">
            <property name="text">
             <string>Start Simulation</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_17">
+          <widget class="QPushButton" name="stop_sim_pushButton">
            <property name="text">
             <string>Stop Simulation</string>
            </property>
@@ -1384,7 +1401,7 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </widget>
-      <widget class="QFrame" name="frame_8">
+      <widget class="QFrame" name="Set_home_frame">
        <property name="geometry">
         <rect>
          <x>650</x>
@@ -1399,23 +1416,7 @@ p, li { white-space: pre-wrap; }
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="label_28">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>471</width>
-          <height>311</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>[ MAP ]</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -1424,51 +1425,51 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <layout class="QHBoxLayout" name="Set_home_horizontalLayout">
          <item>
-          <widget class="QLabel" name="label_29">
+          <widget class="QLabel" name="lat_label">
            <property name="text">
             <string>Lat :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_36">
+          <widget class="QLabel" name="lat_val_label">
            <property name="text">
             <string>[]</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_30">
+          <widget class="QLabel" name="lon_label">
            <property name="text">
             <string>Lon :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_37">
+          <widget class="QLabel" name="lon_val_label">
            <property name="text">
             <string>[]</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_31">
+          <widget class="QLabel" name="alt_abs_label">
            <property name="text">
             <string>alt abs :</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_38">
+          <widget class="QLabel" name="alt_abs_val_label">
            <property name="text">
             <string>[]</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_13">
+          <widget class="QPushButton" name="set_home_pushButton">
            <property name="text">
             <string>Set Home</string>
            </property>
@@ -1476,9 +1477,19 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="set_home_map_widget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>471</width>
+          <height>311</height>
+         </rect>
+        </property>
+       </widget>
       </widget>
      </widget>
-     <widget class="QFrame" name="frame_7">
+     <widget class="QFrame" name="Simulate_faults_frame">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1493,7 +1504,7 @@ p, li { white-space: pre-wrap; }
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QGroupBox" name="groupBox_8">
+      <widget class="QGroupBox" name="Simulate_faults_groupBox">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -1514,9 +1525,9 @@ p, li { white-space: pre-wrap; }
           <height>33</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
+        <layout class="QHBoxLayout" name="Mav_name_simulate_fault_horizontalLayout">
          <item>
-          <widget class="QLabel" name="label_32">
+          <widget class="QLabel" name="mav_name_simulate_faults_label">
            <property name="maximumSize">
             <size>
              <width>75</width>
@@ -1529,27 +1540,17 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_6">
+          <widget class="QComboBox" name="mav_name_simulate_faults_comboBox">
            <item>
             <property name="text">
              <string>[All]</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>MAV1_Px4</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>MAV2_Ardupilot</string>
             </property>
            </item>
           </widget>
          </item>
         </layout>
        </widget>
-       <widget class="QGroupBox" name="groupBox_9">
+       <widget class="QGroupBox" name="Faults_groupBox">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -1570,51 +1571,51 @@ p, li { white-space: pre-wrap; }
            <height>111</height>
           </rect>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
+         <layout class="QGridLayout" name="Faults_gridLayout">
           <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="low_battery_checkBox">
             <property name="text">
              <string>Low Battey</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QCheckBox" name="checkBox_3">
+           <widget class="QCheckBox" name="rc_linkloss_checkBox">
             <property name="text">
              <string>RC Link Loss</string>
             </property>
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QCheckBox" name="checkBox_5">
+           <widget class="QCheckBox" name="sensor_failure_checkBox">
             <property name="text">
              <string>Sensor/Systerm Failure</string>
             </property>
            </widget>
           </item>
           <item row="0" column="3">
-           <widget class="QCheckBox" name="checkBox_6">
+           <widget class="QCheckBox" name="no_neighbour_checkBox">
             <property name="text">
              <string>No Neighbour</string>
             </property>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QCheckBox" name="checkBox_2">
+           <widget class="QCheckBox" name="gps_lost_checkBox">
             <property name="text">
              <string>GPS Lost</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QCheckBox" name="checkBox_4">
+           <widget class="QCheckBox" name="data_linkloss_checkBox">
             <property name="text">
              <string>Data Link Loss</string>
             </property>
            </widget>
           </item>
           <item row="1" column="3">
-           <widget class="QCheckBox" name="checkBox_7">
+           <widget class="QCheckBox" name="near_neighbour_checkBox">
             <property name="text">
              <string>Near Neighbour</string>
             </property>
@@ -1623,7 +1624,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>430</x>
@@ -1632,16 +1633,16 @@ p, li { white-space: pre-wrap; }
           <height>25</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <layout class="QHBoxLayout" name="Simulate_faults_action_horizontalLayout">
          <item>
-          <widget class="QPushButton" name="pushButton_14">
+          <widget class="QPushButton" name="set_fault_pushButton">
            <property name="text">
             <string>Set</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_15">
+          <widget class="QPushButton" name="clear_fault_pushButton">
            <property name="text">
             <string>Clear All</string>
            </property>
@@ -1674,18 +1675,28 @@ p, li { white-space: pre-wrap; }
      <addaction name="actionMetric"/>
      <addaction name="actionEmperical"/>
     </widget>
+    <widget class="QMenu" name="menuSet_Sim_Path">
+     <property name="title">
+      <string>Set Sim Path</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="separator"/>
+     <addaction name="actionPX"/>
+     <addaction name="actionArdupilot"/>
+    </widget>
     <addaction name="menuUnits"/>
+    <addaction name="separator"/>
+    <addaction name="menuSet_Sim_Path"/>
    </widget>
-   <widget class="QMenu" name="menuEdit">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionAdd_Map"/>
     <addaction name="actionAdd_Plans"/>
     <addaction name="separator"/>
     <addaction name="actionExport_Logs"/>
    </widget>
-   <addaction name="menuEdit"/>
+   <addaction name="menuFile"/>
    <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1717,6 +1728,16 @@ p, li { white-space: pre-wrap; }
   <action name="actionExport_Logs">
    <property name="text">
     <string>Export Logs</string>
+   </property>
+  </action>
+  <action name="actionPX">
+   <property name="text">
+    <string>PX4</string>
+   </property>
+  </action>
+  <action name="actionArdupilot">
+   <property name="text">
+    <string>Ardupilot</string>
    </property>
   </action>
  </widget>
