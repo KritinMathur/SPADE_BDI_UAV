@@ -12,6 +12,7 @@ sudo tail /var/log/prosody/prosody.log
 
 sudo service prosody start
 
+make px4_sitl_default jmavsim
 Tools/gazebo_sitl_multiple_run.sh -n 3
 
 pyuic5 -x -o ./src/gui/GCS.py ./src/gui/GCS.ui
@@ -29,3 +30,14 @@ auction look like :
 
 MAV1_Px4 - M1
 MAV2_Ardupilot - M2
+
+pip list exhaustive:
+
+pip install spade
+pip install spade_bdi
+pip install spade_pubsub
+pip install pyzmq
+pip install mavsdk
+pip install pyqt5
+pip install pyqt5-tools
+pip install aioconsole

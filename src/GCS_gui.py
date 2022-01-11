@@ -21,6 +21,25 @@ from gui.AddEdit_MAV import Ui_Add_mav_Dialog
 
 class GCSAgent(PubSubMixin,Agent):
 
+    class TelemSubscriber(CyclicBehaviour):
+
+        async def on_start(self):
+            await gcs.pubsub.purge('pubsub.localhost', "Telemetry_node")
+
+        async def run(self):
+
+            telem_payload = await gcs.pubsub.get_items('pubsub.localhost', "Telemetry_node")
+            
+            #telem_literal = telem_payload[-1].data
+            #telem = json.loads(telem_literal)
+
+            telem_literal_lst = [ json.loads(telem.data) for telem in telem_payload ]
+
+            print(telem_literal_lst)
+            gcs.telem_log = telem_literal_lst
+
+            await asyncio.sleep(1)
+
     class MyBehav(CyclicBehaviour):
 
         class FIPA_Task_auction:
@@ -166,18 +185,17 @@ class GCSAgent(PubSubMixin,Agent):
         self.add_behaviour(CNP_bids_behave,CNP_bids_template)
 
         print("GCS Agent starting . . .")
-        b = self.MyBehav()
-        self.add_behaviour(b)
+        telem_subscriber_behaviour = self.TelemSubscriber()
+        self.add_behaviour(telem_subscriber_behaviour)
 
-    def get_mav_parties(self):
-        return self.mav_parties
+class TelemetryThread(QtCore.QThread):
+    change_telem_value = QtCore.pyqtSignal(object)
 
-    def set_add_mav(self):
-        print('Add MAV Command at spade')
-        #self.mav_parties[] = gcs_ui
-
-    def set_remove_mav(self):
-        pass
+    def run(self):
+        while True:
+            telem_log = gcs.telem_log
+            time.sleep(1)
+            self.change_telem_value.emit(telem_log)
 
 
 
@@ -236,6 +254,8 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
             if gcs_ui.remove_mav_pushButton.isEnabled():   
                 gcs_ui.remove_mav_pushButton.setEnabled(False)
 
+            gcs_ui.current_selected_mav = None
+
             self.accept()
 
 
@@ -259,13 +279,41 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.connected_mav_list.currentRowChanged.connect(self.handleConnectRowChange)
     
     def setup_gcs_agent(self):
-        mav_parties =  gcs.get_mav_parties()
+        self.current_selected_mav_name = None
+
+        mav_parties =  gcs.mav_parties
         
         self.mav_parties_list = [{'Name':mav_party,'JIT ID':mav_party} for mav_party in mav_parties]   
 
         self.connected_mav_list.clear()
         for mav_party in self.mav_parties_list:
             self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party['Name']))
+
+        self.start_telem_thread()
+
+    def start_telem_thread(self):
+        self.telem_thread = TelemetryThread()
+        self.telem_thread.change_telem_value.connect(self.update_telem_value)
+        self.telem_thread.start()
+
+    def update_telem_value(self,telem_log):
+
+        print(self.current_selected_mav_name)
+        if self.current_selected_mav_name:
+
+            
+            for telem in telem_log:
+                if telem['ID'] == self.current_selected_mav_jid:
+                    self.telem_current_mav = telem
+                    break
+
+
+            self.flight_status_textBrowser.setText('in air' if self.telem_current_mav['data']['telem']['state'] else 'landed')
+            self.remaining_perc_lcdNumber.display(self.telem_current_mav['data']['telem']['batt'])
+            self.latitude_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['lat'])
+            self.longitude_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['lon'])
+            self.altitude_abs_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_abs'])
+            self.altitude_rel_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_rel'])
     
     def update_gcs_agent(self):
 
@@ -306,6 +354,14 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         if not self.remove_mav_pushButton.isEnabled():   
             self.remove_mav_pushButton.setEnabled(True)
+
+        self.current_selected_mav_name = self.connected_mav_list.currentItem().text()
+
+        for mav_party in self.mav_parties_list:
+            if mav_party['Name'] == self.current_selected_mav_name:
+                self.current_selected_mav_jid = mav_party['JIT ID']
+
+        
      
 
 if __name__ == "__main__":

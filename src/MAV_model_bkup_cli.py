@@ -247,32 +247,7 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
             await asyncio.sleep(1)
 
-    class TelemPublisher(CyclicBehaviour):
-
-        async def on_start(self):
-            pass
-    
-        async def run(self):
-            print('Sending telemetry data')
-
-            await mav.socket.send(b'get_telemetry')
-            telem_unit = await mav.socket.recv()
-            telem_unit = telem_unit.decode()
-            telem_unit = json.loads(telem_unit)
-            print(telem_unit)
-
-            payload = {'ID': args.name, 'data': {'telem': telem_unit, 'characteristic': HETRO_CHAR}}
-            #await mav.pubsub.purge('pubsub.localhost', "Telemetry_node")
-            try:
-                await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)
-            except:
-                print('Error with telemetry retraction')
-
-            await mav.pubsub.publish('pubsub.localhost', "Telemetry_node",json.dumps(payload),item_id=args.name)
-
     async def setup(self):
-
-        '''
 
         # ROLE DEFINTION
         if args.name == 'test':
@@ -297,7 +272,6 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
         print("neighbor list" ,self.presence.get_contacts())
         print("number of neighbors",len(self.presence.get_contacts()))
-        '''
 
         # Drone Model-Controller socket
         self.context = zmq.asyncio.Context()
@@ -306,22 +280,17 @@ class MAVAgent(PubSubMixin, BDIAgent):
         self.socket.bind(f"tcp://*:{args.mc_port}")
 
         # Adding behaviours
-        print('TelemPublisher starting')
-        telem_publish_behavior = self.TelemPublisher()
-        self.add_behaviour(telem_publish_behavior)
 
-        '''
         print("GCS Agent starting . . .")
         m2g = self.MAVtoGCS()
         self.add_behaviour(m2g)
 
-        
+        '''
         print("IMAV Agent starting . . .")
         m2m = self.MAVtoMAV()
         self.add_behaviour(m2m)
         '''
 
-        '''
         print('Creating Templates for FIPA . . .')
         request_template = Template()
         request_template.set_metadata("performative", "request")
@@ -358,7 +327,6 @@ class MAVAgent(PubSubMixin, BDIAgent):
         self.add_behaviour(CNP_accept_bid_behave, CNP_accept_bid_template)
         self.add_behaviour(CNP_threshold_plus_behave, CNP_threshold_plus_template)
         self.add_behaviour(CNP_allocate_task_behave, CNP_allocate_task_template)
-        '''
 
         '''
         if self.role == 'participant':
