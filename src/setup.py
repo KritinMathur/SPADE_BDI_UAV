@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('--password', type=str, default="password", help='XMPP password for the agent.')
     args = parser.parse_args()
 
-    sa = setupAgent("{}@{}".format(args.name, args.server), args.password,'./src/behave.asl')
+    sa = setupAgent("{}@{}".format(args.name, args.server), args.password)
     future = sa.start()
     future.result()
     sa.stop()

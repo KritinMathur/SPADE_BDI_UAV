@@ -35,10 +35,29 @@ class GCSAgent(PubSubMixin,Agent):
 
             telem_literal_lst = [ json.loads(telem.data) for telem in telem_payload ]
 
-            print(telem_literal_lst)
+            #print(telem_literal_lst)
             gcs.telem_log = telem_literal_lst
 
             await asyncio.sleep(1)
+
+    class CmdPublisher(CyclicBehaviour):
+
+        async def on_start(self):
+            await gcs.pubsub.purge('pubsub.localhost', "Cmd_node")
+            await asyncio.sleep(1)
+
+        async def run(self):
+
+            if gcs_ui.active_faults:
+                gcs_ui.active_faults = False
+
+                send_payload = {'ID' : gcs_ui.faulty_mav_name,'cmd':'set_fault','data':gcs_ui.current_faults}
+                print(send_payload)
+                await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.faulty_mav_name)
+
+                await asyncio.sleep(1)
+
+
 
     class MyBehav(CyclicBehaviour):
 
@@ -187,6 +206,8 @@ class GCSAgent(PubSubMixin,Agent):
         print("GCS Agent starting . . .")
         telem_subscriber_behaviour = self.TelemSubscriber()
         self.add_behaviour(telem_subscriber_behaviour)
+        cmd_publisher_behaviour = self.CmdPublisher()
+        self.add_behaviour(cmd_publisher_behaviour)
 
 class TelemetryThread(QtCore.QThread):
     change_telem_value = QtCore.pyqtSignal(object)
@@ -208,8 +229,7 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
     def __init__(self):
         super(AddMAV,self).__init__()
         self.setupUi(self)
-        self.current_JIT_ID = None
-        self.current_MAV_NAME =None
+        self.current_MAV = None
 
         self.Add_mav_buttonBox.accepted.connect(self.add_mav_accept)
         self.Add_mav_buttonBox.rejected.connect(self.add_mav_reject)
@@ -217,13 +237,12 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
     def add_mav_accept(self):
         
         print('trigger accept')
-        if self.mavname_lineEdit.text() != '' and self.jit_id_lineEdit.text() != '' :
+        if self.jit_id_lineEdit.text() != '' :
 
             # + check if already exist
 
-            mav_info_dict = {'Name': self.mavname_lineEdit.text() , 'JIT ID':self.jit_id_lineEdit.text() }
-            gcs.mav_parties.append(mav_info_dict['JIT ID'])
-            gcs_ui.mav_parties_list.append(mav_info_dict)
+            mav_info = self.jit_id_lineEdit.text()
+            gcs.mav_parties.append(mav_info)
             gcs_ui.update_gcs_agent()
             
             self.accept()
@@ -233,16 +252,10 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
     def edit_mav_accept(self):
         print('trigger accept')
         
-        if self.mavname_lineEdit.text() != '' and self.jit_id_lineEdit.text() != '' :
+        if self.jit_id_lineEdit.text() != '' :
             for i,mav_party in  enumerate(gcs.mav_parties):
-                if mav_party == self.current_JIT_ID:
+                if mav_party == self.current_MAV:
                     gcs.mav_parties[i] = self.jit_id_lineEdit.text()
-                    break
-
-            for i,mav_party in enumerate(gcs_ui.mav_parties_list):
-                if mav_party['Name'] == self.current_MAV_NAME and mav_party['JIT ID'] == self.current_JIT_ID:
-                    gcs_ui.mav_parties_list[i]['Name'] = self.mavname_lineEdit.text()
-                    gcs_ui.mav_parties_list[i]['JIT ID'] = self.jit_id_lineEdit.text()
                     break
 
             gcs_ui.update_gcs_agent()
@@ -257,8 +270,6 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
             gcs_ui.current_selected_mav = None
 
             self.accept()
-
-
 
         self.reject()
 
@@ -277,17 +288,17 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.add_mav_pushButton.clicked.connect(self.handleAddMAV)
         self.edit_mav_pushButton.clicked.connect(self.handleEditMAV)
         self.connected_mav_list.currentRowChanged.connect(self.handleConnectRowChange)
+        self.set_fault_pushButton.clicked.connect(self.handleSetFault)
     
     def setup_gcs_agent(self):
-        self.current_selected_mav_name = None
 
-        mav_parties =  gcs.mav_parties
+        self.current_selected_mav = None
+        self.active_faults = False
         
-        self.mav_parties_list = [{'Name':mav_party,'JIT ID':mav_party} for mav_party in mav_parties]   
-
         self.connected_mav_list.clear()
-        for mav_party in self.mav_parties_list:
-            self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party['Name']))
+        for mav_party in gcs.mav_parties:
+            self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party))
+            self.mav_name_simulate_faults_comboBox.addItem(mav_party)
 
         self.start_telem_thread()
 
@@ -298,28 +309,31 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
     def update_telem_value(self,telem_log):
 
-        print(self.current_selected_mav_name)
-        if self.current_selected_mav_name:
+        print(self.current_selected_mav)
+        if self.current_selected_mav:
 
             
             for telem in telem_log:
-                if telem['ID'] == self.current_selected_mav_jid:
+                if telem['ID'] == self.current_selected_mav:
                     self.telem_current_mav = telem
                     break
 
-
-            self.flight_status_textBrowser.setText('in air' if self.telem_current_mav['data']['telem']['state'] else 'landed')
-            self.remaining_perc_lcdNumber.display(self.telem_current_mav['data']['telem']['batt'])
-            self.latitude_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['lat'])
-            self.longitude_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['lon'])
-            self.altitude_abs_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_abs'])
-            self.altitude_rel_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_rel'])
+            try:
+                self.flight_status_textBrowser.setText('in air' if self.telem_current_mav['data']['telem']['state'] else 'landed')
+                self.remaining_perc_lcdNumber.display(self.telem_current_mav['data']['telem']['batt'])
+                self.latitude_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['lat'])
+                self.longitude_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['lon'])
+                self.altitude_abs_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_abs'])
+                self.altitude_rel_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_rel'])
+            except:
+                print('Telemetry update error')
     
     def update_gcs_agent(self):
 
         self.connected_mav_list.clear()
-        for mav_party in self.mav_parties_list:
-            self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party['Name']))
+        for mav_party in gcs.mav_parties:
+            self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party))
+            self.mav_name_simulate_faults_comboBox.addItem(mav_party)
 
     def handleAddMAV(self):
 
@@ -328,21 +342,12 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
     
     def handleEditMAV(self):
         
-        mav_name  = self.connected_mav_list.currentItem().text()
-        print(mav_name)
-
-        for mav_party in self.mav_parties_list:
-            print(mav_party['Name'],mav_party['JIT ID'])
-            print(mav_party['Name'] == mav_name)
-            if mav_party['Name'] == mav_name:
-                mav_jit = mav_party['JIT ID']
-                break
+        mav_jit  = self.connected_mav_list.currentItem().text()
+        print(mav_jit)
 
         self.add_mav_dialog = AddMAV()
         self.add_mav_dialog.jit_id_lineEdit.setText(mav_jit)
-        self.add_mav_dialog.mavname_lineEdit.setText(mav_name)
-        self.add_mav_dialog.current_JIT_ID = mav_jit
-        self.add_mav_dialog.current_MAV_NAME = mav_name
+        self.add_mav_dialog.current_MAV = mav_jit
         self.add_mav_dialog.Add_mav_buttonBox.accepted.disconnect()
         self.add_mav_dialog.Add_mav_buttonBox.accepted.connect(self.add_mav_dialog.edit_mav_accept)
         self.add_mav_dialog.show()
@@ -355,14 +360,25 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         if not self.remove_mav_pushButton.isEnabled():   
             self.remove_mav_pushButton.setEnabled(True)
 
-        self.current_selected_mav_name = self.connected_mav_list.currentItem().text()
+        if self.connected_mav_list.currentItem():
+            self.current_selected_mav = self.connected_mav_list.currentItem().text()
 
-        for mav_party in self.mav_parties_list:
-            if mav_party['Name'] == self.current_selected_mav_name:
-                self.current_selected_mav_jid = mav_party['JIT ID']
+    def handleSetFault(self):
+        self.faulty_mav_name = self.mav_name_simulate_faults_comboBox.currentText()
+
+        low_battery = self.low_battery_checkBox.isChecked()
+        gps_lost = self.gps_lost_checkBox.isChecked()
+        rc_linkloss = self.rc_linkloss_checkBox.isChecked()
+        data_linkloss = self.data_linkloss_checkBox.isChecked()
+        sensor_failure = self.sensor_failure_checkBox.isChecked()
+        no_neighbour = self.no_neighbour_checkBox.isChecked()
+        near_neighbour = self.near_neighbour_checkBox.isChecked()
+
+        self.current_faults = {'low_battery':low_battery,'gps_lost':gps_lost,'rc_linkloss':rc_linkloss,'data_linkloss':data_linkloss,'sensor_failure':sensor_failure,'no_neighbour':no_neighbour,'near_neighbour':near_neighbour}
+        self.active_faults = True
+
 
         
-     
 
 if __name__ == "__main__":
 

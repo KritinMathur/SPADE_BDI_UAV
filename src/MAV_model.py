@@ -255,20 +255,71 @@ class MAVAgent(PubSubMixin, BDIAgent):
         async def run(self):
             print('Sending telemetry data')
 
-            await mav.socket.send(b'get_telemetry')
-            telem_unit = await mav.socket.recv()
+            telem_unit = await mav.telem_socket.recv()
             telem_unit = telem_unit.decode()
             telem_unit = json.loads(telem_unit)
-            print(telem_unit)
+            #print(telem_unit)
 
             payload = {'ID': args.name, 'data': {'telem': telem_unit, 'characteristic': HETRO_CHAR}}
             #await mav.pubsub.purge('pubsub.localhost', "Telemetry_node")
             try:
                 await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)
+                print('telemetry retraction successful')
             except:
                 print('Error with telemetry retraction')
 
             await mav.pubsub.publish('pubsub.localhost', "Telemetry_node",json.dumps(payload),item_id=args.name)
+
+    class CmdSubscriber(CyclicBehaviour):
+
+        async def on_start(self):
+            pass
+
+        async def run(self):
+
+            command_payload = await mav.pubsub.get_items('pubsub.localhost', "Cmd_node")
+
+            if command_payload:
+
+                command_gcs_literal = command_payload[-1].data
+                command_gcs = json.loads(command_gcs_literal)
+
+                if command_gcs['ID'] == args.name:
+
+                    try:
+                        await mav.pubsub.retract('pubsub.localhost', "Cmd_node", item_id=args.name)
+                        print('command retraction successful')
+                    except:
+                        print('Error with command retraction')
+
+
+                    if command_gcs['cmd'] == 'mission':
+                        print('Starting mission')
+
+                        mav.bdi.set_belief('go_mission', 'positive')
+
+                    if command_gcs['cmd'] == 'rtl':
+                        print('RTL')
+
+                        mav.bdi.set_belief('rtl', 'positive')
+
+                    if command_gcs['cmd'] == 'set_fault':
+
+                        print(command_gcs['data'])
+
+                        if command_gcs['data']['low_battery']:
+                            print('belief set low battery')
+                            mav.bdi.set_belief('fault_low_battery','positive')
+
+                        if command_gcs['data']['gps_lost']:
+                            print('belief set gps lost')
+                            mav.bdi.set_belief('fault_gps_lost','positive')
+
+                        if command_gcs['data']['near_neighbour']:
+                            print('belief set near neighbour')
+                            mav.bdi.set_belief('fault_near_neighbour','positive')
+            
+            await asyncio.sleep(1)
 
     async def setup(self):
 
@@ -300,15 +351,23 @@ class MAVAgent(PubSubMixin, BDIAgent):
         '''
 
         # Drone Model-Controller socket
-        self.context = zmq.asyncio.Context()
+        self.cmd_context = zmq.asyncio.Context()
+        self.telem_context = zmq.asyncio.Context()
         print("Starting drone model controller server…")
-        self.socket = self.context.socket(zmq.PAIR)
-        self.socket.bind(f"tcp://*:{args.mc_port}")
+        self.cmd_socket = self.cmd_context.socket(zmq.PAIR)
+        self.cmd_socket.bind(f"tcp://*:{args.mc_port}")
+        self.telem_socket = self.telem_context.socket(zmq.PAIR)
+        self.telem_socket.bind(f"tcp://*:{str(int(args.mc_port)+1000)}")
+
 
         # Adding behaviours
         print('TelemPublisher starting')
         telem_publish_behavior = self.TelemPublisher()
         self.add_behaviour(telem_publish_behavior)
+
+        print('CmdSubscriber starting')
+        cmd_subscriber_behavior = self.CmdSubscriber()
+        self.add_behaviour(cmd_subscriber_behavior)
 
         '''
         print("GCS Agent starting . . .")
@@ -375,13 +434,35 @@ class MAVAgent(PubSubMixin, BDIAgent):
         @actions.add_function(".mission", (int,))
         def _my_function(x):
 
-            asyncio.ensure_future(mav.socket.send(b'do_mission'))
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_mission'))
             return x
 
         @actions.add_function(".rtl", (int,))
         def _my_function(x):
 
-            asyncio.ensure_future(mav.socket.send(b'do_rtl'))
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_rtl'))
+            return x
+
+        @actions.add_function(".fault_low_battery",(int,))
+        def _my_function(x):
+
+            print('Sending low battery to controller')
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_rtl'))
+            return x
+
+        @actions.add_function(".fault_gps_lost",(int,))
+        def _my_function(x):
+
+            print('Sending GPS lost to controller')
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_land'))
+            return x
+
+
+        @actions.add_function(".fault_near_neighbour",(int,))
+        def _my_function(x):
+
+            print('Sending near neighbour to controller')
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_inc_altitude'))
             return x
 
         @actions.add(".reply", 1)

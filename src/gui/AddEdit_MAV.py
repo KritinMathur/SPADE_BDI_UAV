@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'AddEdit_MAV.ui'
+# Form implementation generated from reading ui file './src/gui/AddEdit_MAV.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -27,16 +27,10 @@ class Ui_Add_mav_Dialog(object):
         self.Add_mav_gridLayout.setObjectName("Add_mav_gridLayout")
         self.jit_id_label = QtWidgets.QLabel(self.layoutWidget)
         self.jit_id_label.setObjectName("jit_id_label")
-        self.Add_mav_gridLayout.addWidget(self.jit_id_label, 1, 0, 1, 1)
+        self.Add_mav_gridLayout.addWidget(self.jit_id_label, 0, 0, 1, 1)
         self.jit_id_lineEdit = QtWidgets.QLineEdit(self.layoutWidget)
         self.jit_id_lineEdit.setObjectName("jit_id_lineEdit")
-        self.Add_mav_gridLayout.addWidget(self.jit_id_lineEdit, 1, 1, 1, 1)
-        self.mavname_lineEdit = QtWidgets.QLineEdit(self.layoutWidget)
-        self.mavname_lineEdit.setObjectName("mavname_lineEdit")
-        self.Add_mav_gridLayout.addWidget(self.mavname_lineEdit, 0, 1, 1, 1)
-        self.mavname_label = QtWidgets.QLabel(self.layoutWidget)
-        self.mavname_label.setObjectName("mavname_label")
-        self.Add_mav_gridLayout.addWidget(self.mavname_label, 0, 0, 1, 1)
+        self.Add_mav_gridLayout.addWidget(self.jit_id_lineEdit, 0, 1, 1, 1)
 
         self.retranslateUi(Add_mav_Dialog)
         QtCore.QMetaObject.connectSlotsByName(Add_mav_Dialog)
@@ -45,7 +39,6 @@ class Ui_Add_mav_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Add_mav_Dialog.setWindowTitle(_translate("Add_mav_Dialog", "Dialog"))
         self.jit_id_label.setText(_translate("Add_mav_Dialog", "JIT ID :"))
-        self.mavname_label.setText(_translate("Add_mav_Dialog", "MAV Name :"))
 
 
 if __name__ == "__main__":

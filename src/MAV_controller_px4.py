@@ -32,36 +32,41 @@ async def connect_mav():
             print("Global position estimate ok")
             break
 
-    context = zmq.asyncio.Context()
+    cmd_context = zmq.asyncio.Context()
+    telem_context = zmq.asyncio.Context()
 
     #  Socket to talk to server
     print("Connecting to drone model controller server…")
-    socket = context.socket(zmq.PAIR)
-    socket.connect(f"tcp://localhost:{cont_args.mc_port}")
+    cmd_socket = cmd_context.socket(zmq.PAIR)
+    cmd_socket.connect(f"tcp://localhost:{cont_args.mc_port}")
+    telem_socket = telem_context.socket(zmq.PAIR)
+    telem_socket.connect(f"tcp://localhost:{str(int(cont_args.mc_port)+1000)}")
 
     ## Task list
     mission_task,rtl_task = None,None
+    
 
     while True:
+        telem_task = asyncio.ensure_future(pub_telemetry(drone,telem_socket))
+
         print('controller - waiting to recv')
-        message = await socket.recv()
+        message = await cmd_socket.recv()
+
+        try:
+            telem_task.cancel()
+        except:
+            pass
+        
         print('controller - received message')
 
         print("Received [ %s ]" % message)
         message = message.decode()
         print(message)
 
-        if str(message) == 'get_telemetry' :
-
-            telem_unit = await get_telemetry(drone)
-            telem_unit = json.dumps(telem_unit)
-    
-            await socket.send(telem_unit.encode())
-
         if str(message) == 'do_mission' :
 
             if rtl_task:
-                rtl_task.cancel
+                rtl_task.cancel()
 
             mission_task = asyncio.ensure_future(do_mission(drone))
 
@@ -71,6 +76,27 @@ async def connect_mav():
                 mission_task.cancel()
 
             rtl_task = asyncio.ensure_future(do_rtl(drone))
+
+        if str(message) == 'do_land':
+
+            if mission_task:
+                mission_task.cancel()
+
+            if rtl_task:
+                rtl_task.cancel()
+
+            land_task = asyncio.ensure_future(do_land(drone))
+
+        if str(message) == 'do_inc_altitude':
+
+            if mission_task:
+                mission_task.cancel()
+            if rtl_task:
+                rtl_task.cancel()
+
+            inc_altitude_task = asyncio.ensure_future(do_inc_altitude(drone))
+
+        await asyncio.sleep(1)
 
 
 async def do_takeoff(drone):
@@ -153,31 +179,62 @@ async def do_rtl(drone):
         if not is_in_air:
             break
 
+        await asyncio.sleep(1)
+
+    print("-- Disarming")
+    await drone.action.disarm()
+
+async def do_land(drone):
+    print("-- Land")
+    await drone.action.land()
+
+    async for is_in_air in drone.telemetry.in_air():
+        if not is_in_air:
+            break
+
+        await asyncio.sleep(1)
+
     print("-- Disarming")
     await drone.action.disarm()
 
 
-async def get_telemetry(drone):
-
+async def do_inc_altitude(drone):
+    await drone.action.hold()
+    
     telem_unit = {}
-
-    async for battery in drone.telemetry.battery():
-        telem_unit['batt'] = battery.remaining_percent
-        break
-
-    async for gps_info in drone.telemetry.gps_info():
-        telem_unit['gps'] = {'num_sat' : gps_info.num_satellites , 'fix_type' : gps_info.fix_type.name}
-        break
-
-    async for in_air in drone.telemetry.in_air():
-        telem_unit['state'] = in_air
-        break
 
     async for position in drone.telemetry.position():
         telem_unit['pos'] = {'lat':position.latitude_deg,'lon':position.longitude_deg,'alt_rel':position.relative_altitude_m,'alt_abs':position.absolute_altitude_m}
-        break
+        break    
 
-    return telem_unit
+    await drone.action.goto_location(telem_unit['pos']['lat'], telem_unit['pos']['lon'], telem_unit['pos']['alt_abs']+10, 0)
+
+
+async def pub_telemetry(drone,telem_socket):
+
+    while True:
+
+        telem_unit = {}
+
+        async for battery in drone.telemetry.battery():
+            telem_unit['batt'] = battery.remaining_percent
+            break
+
+        async for gps_info in drone.telemetry.gps_info():
+            telem_unit['gps'] = {'num_sat' : gps_info.num_satellites , 'fix_type' : gps_info.fix_type.name}
+            break
+
+        async for in_air in drone.telemetry.in_air():
+            telem_unit['state'] = in_air
+            break
+
+        async for position in drone.telemetry.position():
+            telem_unit['pos'] = {'lat':position.latitude_deg,'lon':position.longitude_deg,'alt_rel':position.relative_altitude_m,'alt_abs':position.absolute_altitude_m}
+            break
+
+        telem_unit = json.dumps(telem_unit)
+        await telem_socket.send(telem_unit.encode())
+        await asyncio.sleep(1)
     
 
 if __name__ == "__main__":
