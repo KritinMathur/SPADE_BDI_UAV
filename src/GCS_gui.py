@@ -191,6 +191,7 @@ class GCSAgent(PubSubMixin,Agent):
     async def setup(self):
 
         self.mav_parties = ['test','test2','test3','test4','test5']
+        self.mav_missions = []
 
         CNP_online_template  = Template()
         CNP_online_template.set_metadata("performative","online")
@@ -285,21 +286,25 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         self.setup_gcs_agent()
 
+        #MAV
         self.add_mav_pushButton.clicked.connect(self.handleAddMAV)
         self.edit_mav_pushButton.clicked.connect(self.handleEditMAV)
         self.connected_mav_list.currentRowChanged.connect(self.handleConnectRowChange)
+
+
+        #SIM
         self.set_fault_pushButton.clicked.connect(self.handleSetFault)
+
+        #Menu Bar
+        self.actionAdd_Plans.triggered.connect(self.filemenu_addplans)        
+
     
     def setup_gcs_agent(self):
 
         self.current_selected_mav = None
         self.active_faults = False
         
-        self.connected_mav_list.clear()
-        for mav_party in gcs.mav_parties:
-            self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party))
-            self.mav_name_simulate_faults_comboBox.addItem(mav_party)
-
+        self.update_gcs_agent()
         self.start_telem_thread()
 
     def start_telem_thread(self):
@@ -331,9 +336,34 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
     def update_gcs_agent(self):
 
         self.connected_mav_list.clear()
+        self.mav_name_simulate_faults_comboBox.clear()
+        self.mav_name_comboBox.clear()
+        self.parent_mav_comboBox.clear()
+        self.mav_name_action_comboBox.clear()
+        self.mav_name_plots_listWidget.clear()
+        
+        self.mav_name_simulate_faults_comboBox.addItem('[All]')
+        self.mav_name_comboBox.addItem('[All]')
+        self.parent_mav_comboBox.addItem('[Auto]')
+        self.mav_name_action_comboBox.addItem('[All]')
+
         for mav_party in gcs.mav_parties:
             self.connected_mav_list.addItem(QtWidgets.QListWidgetItem(mav_party))
             self.mav_name_simulate_faults_comboBox.addItem(mav_party)
+            self.mav_name_comboBox.addItem(mav_party)
+            self.parent_mav_comboBox.addItem(mav_party)
+            self.mav_name_action_comboBox.addItem(mav_party)
+            self.mav_name_plots_listWidget.addItem(QtWidgets.QListWidgetItem(mav_party))
+
+        
+        self.missions_listWidget.clear()
+        self.MMU_comboBox.clear()
+
+        self.MMU_comboBox.addItem('[Auto]')
+        
+        for mav_mission in gcs.mav_missions:
+            self.missions_listWidget.addItem(QtWidgets.QListWidgetItem(mav_mission['name']))
+            self.MMU_comboBox.addItem(mav_mission['name'])
 
     def handleAddMAV(self):
 
@@ -376,6 +406,33 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         self.current_faults = {'low_battery':low_battery,'gps_lost':gps_lost,'rc_linkloss':rc_linkloss,'data_linkloss':data_linkloss,'sensor_failure':sensor_failure,'no_neighbour':no_neighbour,'near_neighbour':near_neighbour}
         self.active_faults = True
+
+    def filemenu_addplans(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        files, _ = QtWidgets.QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
+        
+        if files:
+            print(files)
+
+            for file_name in files:
+
+                mission_data = {'name': file_name.split('/')[-1] ,'path':file_name, 'data': [] }
+
+                with open(file_name) as f:
+                    for i, line in enumerate(f):
+                        if i==0:
+                            if not line.startswith('QGC WPL 110'):
+                                raise Exception('File is not supported WP version')
+                        else:
+                            linearray=line.split('\t')
+                            mission_data['data'].append(linearray.copy())
+
+                gcs.mav_missions.append(mission_data)
+
+            self.update_gcs_agent()
+
+                    
 
 
         
