@@ -1,3 +1,4 @@
+import os
 import time
 import asyncio
 import aioconsole
@@ -293,16 +294,22 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
 
         #SIM
+        self.start_sim_pushButton.clicked.connect(self.handleStartSim)
+        self.stop_sim_pushButton.clicked.connect(self.handleStopSim)
         self.set_fault_pushButton.clicked.connect(self.handleSetFault)
 
         #Menu Bar
-        self.actionAdd_Plans.triggered.connect(self.filemenu_addplans)        
+        self.actionAdd_Plans.triggered.connect(self.filemenu_addplans)
+        self.actionPX.triggered.connect(self.editmenu_addsimpath_px)        
 
     
     def setup_gcs_agent(self):
 
         self.current_selected_mav = None
         self.active_faults = False
+
+        self.px4_sim_path = None
+        self.ardupilot_sim_path = None
         
         self.update_gcs_agent()
         self.start_telem_thread()
@@ -393,6 +400,20 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         if self.connected_mav_list.currentItem():
             self.current_selected_mav = self.connected_mav_list.currentItem().text()
 
+    def handleStartSim(self):
+        if self.px4_sim_path:
+            num_px4 = self.px4_sim_spinBox.value()
+            #export PX4_HOME_LAT=2.4713686
+            #export PX4_HOME_LON=-76.5975746
+            os.system(f"xterm -e {self.px4_sim_path}/Tools/gazebo_sitl_multiple_run.sh -n {num_px4} &")
+        else:
+            print('SIM PATH NOT SET')
+
+
+    def handleStopSim(self):
+        os.system('pkill -9 -f /Tools/gazebo_sitl_multiple_run.sh')
+
+
     def handleSetFault(self):
         self.faulty_mav_name = self.mav_name_simulate_faults_comboBox.currentText()
 
@@ -432,8 +453,11 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
             self.update_gcs_agent()
 
-                    
-
+    def editmenu_addsimpath_px(self):
+        file = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
+        if file != '':
+            self.px4_sim_path = file
+            print(self.px4_sim_path)
 
         
 

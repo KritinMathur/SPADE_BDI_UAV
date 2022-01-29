@@ -32,7 +32,9 @@ MAV1_Px4 - M1
 MAV2_Ardupilot - M2
 
 pip list exhaustive:
+pip3 freeze > requirements.txt
 
+pip install numpy
 pip install spade
 pip install spade_bdi
 pip install spade_pubsub

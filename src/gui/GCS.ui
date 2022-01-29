@@ -1591,6 +1591,11 @@ p, li { white-space: pre-wrap; }
           <string>Battery</string>
          </property>
         </item>
+        <item>
+         <property name="text">
+          <string>Mission</string>
+         </property>
+        </item>
        </widget>
       </widget>
      </widget>

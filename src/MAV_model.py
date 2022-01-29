@@ -315,9 +315,17 @@ class MAVAgent(PubSubMixin, BDIAgent):
                             print('belief set gps lost')
                             mav.bdi.set_belief('fault_gps_lost','positive')
 
+                        if command_gcs['data']['sensor_failure']:
+                            print('belief set sensor failure')
+                            mav.bdi.set_belief('fault_sensor_failure','positive')
+
                         if command_gcs['data']['near_neighbour']:
                             print('belief set near neighbour')
                             mav.bdi.set_belief('fault_near_neighbour','positive')
+
+                        if command_gcs['data']['no_neighbour']:
+                            print('belief set no neighbour')
+                            mav.bdi.set_belief('fault_no_neighbour','positive')
             
             await asyncio.sleep(1)
 
@@ -457,12 +465,26 @@ class MAVAgent(PubSubMixin, BDIAgent):
             asyncio.ensure_future(mav.cmd_socket.send(b'do_land'))
             return x
 
+        @actions.add_function(".fault_sensor_failure",(int,))
+        def _my_function(x):
+
+            print('Sending sensor failure to controller')
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_land'))
+            return x
+
 
         @actions.add_function(".fault_near_neighbour",(int,))
         def _my_function(x):
 
             print('Sending near neighbour to controller')
             asyncio.ensure_future(mav.cmd_socket.send(b'do_inc_altitude'))
+            return x
+
+        @actions.add_function(".fault_no_neighbour",(int,))
+        def _my_function(x):
+
+            print('Sending no neighbour to controller')
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_rtl'))
             return x
 
         @actions.add(".reply", 1)

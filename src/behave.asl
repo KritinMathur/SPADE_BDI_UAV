@@ -19,8 +19,17 @@
     .reply(R);
     -fault_gps_lost(positive).
 
++fault_sensor_failure(positive) <-
+    .fault_sensor_failure(1,R);
+    .reply(R);
+    -fault_sensor_failure(positive).
+
 +fault_near_neighbour(positive) <-
     .fault_near_neighbour(1,R);
     .reply(R);
     -fault_near_neighbour(positive).
 
++fault_no_neighbour(positive) <-
+    .fault_no_neighbour(1,R);
+    .reply(R);
+    -fault_no_neighbour(positive).
