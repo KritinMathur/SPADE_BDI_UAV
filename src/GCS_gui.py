@@ -403,15 +403,18 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
     def handleStartSim(self):
         if self.px4_sim_path:
             num_px4 = self.px4_sim_spinBox.value()
-            #export PX4_HOME_LAT=2.4713686
-            #export PX4_HOME_LON=-76.5975746
-            os.system(f"xterm -e {self.px4_sim_path}/Tools/gazebo_sitl_multiple_run.sh -n {num_px4} &")
+            os.system(f"gnome-terminal -e 'bash ./src/launch_px4_sim.sh 2.4713686 -76.5975746 {self.px4_sim_path} {num_px4}'")
+
+            self.start_sim_pushButton.setEnabled(False)
+
         else:
             print('SIM PATH NOT SET')
+            print(gcs.mav_parties)
 
 
     def handleStopSim(self):
         os.system('pkill -9 -f /Tools/gazebo_sitl_multiple_run.sh')
+        self.start_sim_pushButton.setEnabled(True)
 
 
     def handleSetFault(self):

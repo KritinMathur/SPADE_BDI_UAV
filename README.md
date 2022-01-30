@@ -8,7 +8,7 @@ Desktop application designed to test distributed communication protocols with he
 * [PyQt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/)
 * [SPADE](https://spade-mas.readthedocs.io/en/latest/readme.html)
 * [SPADE_BDI](https://github.com/javipalanca/spade_bdi)
-* [SPAD_PubSub](https://spade-pubsub.readthedocs.io/en/latest/)
+* [SPADE_PubSub](https://spade-pubsub.readthedocs.io/en/latest/)
 * [Prosody XMPP server](https://prosody.im/doc/xmpp)
 * [AgentSpeak(L)](http://astralanguage.com/wordpress/docs/introduction-to-agentspeakl/)
 * [ZeroMQ](https://zeromq.org/)
@@ -105,6 +105,7 @@ python3 src/setup.py
 
 ## Usage
 
+### Starting server and GUI
 1. Start prosody server
 ```
 sudo service start prosody
@@ -112,18 +113,46 @@ sudo service start prosody
 
 > Ensure that the `virtual environment` is sourced before executing the following command.
 
-2. Start the `GCS GUI` by executing the following command on another terminal.
+2. Start the `GCS GUI` by executing the following command on another terminal
 
 ```bash
 cd path/to/SPADE_BDI_UAV
 python3 src/GCS_gui.py
 ```
-
-3. Perform the following actions in the GUI to simulate fault
+### Starting SITL
+1. Perform the following actions in the GUI to start SITL
    - Goto *edit* -> *set sim path* -> *PX4* and select the PX4 repository
    - Goto *simulation tab*, select the number of PX4 MAVs in the *manage SITL* panel and click *start simulation*
+
+2. Start MAV Model for each simulated MAV on another terminal
+> Ensure that the `virtual environment` is sourced before executing the following command.
+
+```bash
+cd path/to/SPADE_BDI_UAV
+python3 src/MAV_model.py
+```
+```bash
+cd path/to/SPADE_BDI_UAV
+python3 src/MAV_model.py --name test2 --uav_add udp://:14541 --uav_port 50041 --mc_port 5556
+```
+```bash
+cd path/to/SPADE_BDI_UAV
+python3 src/MAV_model.py --name test3 --uav_add udp://:14542 --uav_port 50042 --mc_port 5557
+```
+```bash
+cd path/to/SPADE_BDI_UAV
+python3 src/MAV_model.py --name test4 --uav_add udp://:14543 --uav_port 50043 --mc_port 5558
+```
+```bash
+cd path/to/SPADE_BDI_UAV
+python3 src/MAV_model.py --name test5 --uav_add udp://:14544 --uav_port 50044 --mc_port 5559
+```
+
+### Simulating faults
+1. Perform the following actions 
    > **For now**, Connect `QGC` to perform actions on the MAV agents (e.g. takeoff ,do_mission ,goto_location)
-   - Goto *simulation tab*, select the desired MAV and fault in the *fault simulation* panel and click *set* to simulate the fault
+   - Goto *simulation tab*, select the desired MAV and fault in the *fault simulation* panel
+   - Click *set* to simulate the fault
 
 
 
