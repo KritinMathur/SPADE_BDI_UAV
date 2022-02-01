@@ -108,12 +108,19 @@ python3 src/setup.py
 ### Starting server and GUI
 1. Start prosody server
 ```
-sudo service start prosody
+sudo service prosody start
 ```
+
+2. Give RWE permission to all files in `/src`
+```bash
+cd path/to/SPADE_BDI_UAV
+chmod -r 777 ./src/
+```
+
 
 > Ensure that the `virtual environment` is sourced before executing the following command.
 
-2. Start the `GCS GUI` by executing the following command on another terminal
+3. Start the `GCS GUI` by executing the following command on another terminal
 
 ```bash
 cd path/to/SPADE_BDI_UAV
@@ -178,7 +185,7 @@ python3 src/MAV_model.py --name test5 --uav_add udp://:14544 --uav_port 50044 --
   - [x] Ground station controller
   - [ ] Mission Log
   - [x] Telemetry & Characteristics of MAV on GCS 
-  - [ ] Mission Upload
+  - [x] Mission Upload
 - [ ] Sprint 4 - Fault simulation
   - [x] Behaviors on faults
   - [x] 6 possible faults/failures

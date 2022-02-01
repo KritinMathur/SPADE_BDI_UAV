@@ -5,8 +5,19 @@ import argparse
 class setupAgent(PubSubMixin,Agent):
 
     async def setup(self):
-        await self.pubsub.create('pubsub.localhost', "Telemetry_node")
-        await self.pubsub.create('pubsub.localhost', "Cmd_node")
+        try:
+            await self.pubsub.delete('pubsub.localhost', "Telemetry_node")
+            await self.pubsub.delete('pubsub.localhost', "Cmd_node")
+            print('Nodes Deleted')
+        except:
+            print('Nodes not Deleted')
+
+        try:
+            await self.pubsub.create('pubsub.localhost', "Telemetry_node")
+            await self.pubsub.create('pubsub.localhost', "Cmd_node")
+            print('Nodes Created')
+        except:
+            print('Nodes not Created')
 
 
 if __name__ == "__main__":

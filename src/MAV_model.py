@@ -247,28 +247,50 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
             await asyncio.sleep(1)
 
-    class TelemPublisher(CyclicBehaviour):
-
+    class NeighbourBroadcast(CyclicBehaviour):
+        
         async def on_start(self):
             pass
-    
-        async def run(self):
-            print('Sending telemetry data')
 
+        async def run(self):
+            pass
+
+    class TelemGetter(CyclicBehaviour):
+
+        async def on_start(self):
+            mav.telem_unit = None
+
+        async def run(self):
             telem_unit = await mav.telem_socket.recv()
             telem_unit = telem_unit.decode()
             telem_unit = json.loads(telem_unit)
             #print(telem_unit)
+            mav.telem_unit = telem_unit
 
-            payload = {'ID': args.name, 'data': {'telem': telem_unit, 'characteristic': HETRO_CHAR}}
-            #await mav.pubsub.purge('pubsub.localhost', "Telemetry_node")
-            try:
-                await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)
-                print('telemetry retraction successful')
-            except:
-                print('Error with telemetry retraction')
+    class TelemPublisher(CyclicBehaviour):
 
-            await mav.pubsub.publish('pubsub.localhost', "Telemetry_node",json.dumps(payload),item_id=args.name)
+        async def on_start(self):
+            mav.telem_unit = None
+    
+        async def run(self):
+
+            if mav.telem_unit:
+                print('Sending telemetry data')
+
+                payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': HETRO_CHAR}}
+                
+                try:
+                    await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)
+                    print('telemetry retraction successful')
+                except:
+                    print('Error with telemetry retraction')
+
+                await mav.pubsub.publish('pubsub.localhost', "Telemetry_node",json.dumps(payload),item_id=args.name)
+
+            else:
+                print('Not sending telemetry data')
+
+            await asyncio.sleep(1)
 
     class CmdSubscriber(CyclicBehaviour):
 
@@ -293,15 +315,31 @@ class MAVAgent(PubSubMixin, BDIAgent):
                         print('Error with command retraction')
 
 
-                    if command_gcs['cmd'] == 'mission':
+                    if command_gcs['cmd'] == 'do_mission':
                         print('Starting mission')
-
                         mav.bdi.set_belief('go_mission', 'positive')
 
-                    if command_gcs['cmd'] == 'rtl':
-                        print('RTL')
+                    if command_gcs['cmd'] == 'pause_mission':
+                        print('Pausing mission')
+                        mav.bdi.set_belief('hold_mission', 'positive')
 
+                    if command_gcs['cmd'] == 'do_rtl':
+                        print('RTL')
                         mav.bdi.set_belief('rtl', 'positive')
+
+                    if command_gcs['cmd'] == 'do_land':
+                        print('land')
+                        mav.bdi.set_belief('land', 'positive')
+
+
+                    if command_gcs['cmd'] == 'set_role_mission':
+                        print('Set Role and Mission')
+
+                        mav.role = command_gcs['data']['role']
+                        mav.parent_mav_name = command_gcs['data']['parent']
+                        mav.mission_data = command_gcs['data']['mission']
+
+                        mav.bdi.set_belief('upload_mission', 'positive')
 
                     if command_gcs['cmd'] == 'set_fault':
 
@@ -358,6 +396,13 @@ class MAVAgent(PubSubMixin, BDIAgent):
         print("number of neighbors",len(self.presence.get_contacts()))
         '''
 
+        # ROLE DEFINTION
+        self.role = 'Unallocated'
+        self.counter_parties = []
+        self.parent_mav_name = 'Unallocated'
+        self.mission_allocated = False
+        self.mission_data = None
+
         # Drone Model-Controller socket
         self.cmd_context = zmq.asyncio.Context()
         self.telem_context = zmq.asyncio.Context()
@@ -369,6 +414,10 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
 
         # Adding behaviours
+        print('TelemGetter starting')
+        telem_getter_behavior = self.TelemGetter()
+        self.add_behaviour(telem_getter_behavior)
+
         print('TelemPublisher starting')
         telem_publish_behavior = self.TelemPublisher()
         self.add_behaviour(telem_publish_behavior)
@@ -445,10 +494,34 @@ class MAVAgent(PubSubMixin, BDIAgent):
             asyncio.ensure_future(mav.cmd_socket.send(b'do_mission'))
             return x
 
+        @actions.add_function(".pause", (int,))
+        def _my_function(x):
+
+            asyncio.ensure_future(mav.cmd_socket.send(b'pause_mission'))
+            return x
+
         @actions.add_function(".rtl", (int,))
         def _my_function(x):
 
             asyncio.ensure_future(mav.cmd_socket.send(b'do_rtl'))
+            return x
+
+        @actions.add_function(".land", (int,))
+        def _my_function(x):
+            
+            asyncio.ensure_future(mav.cmd_socket.send(b'do_land'))
+            return x
+
+        @actions.add_function(".upload_mission",(int,))
+        def _my_function(x):
+
+            print('Uploading Mission')
+
+            cmd_str = 'do_upload_mission'
+            mission_data_str = json.dumps(mav.mission_data)
+            fin_str = cmd_str + ',' + mission_data_str
+
+            asyncio.ensure_future(mav.cmd_socket.send(fin_str.encode('utf-8')))
             return x
 
         @actions.add_function(".fault_low_battery",(int,))

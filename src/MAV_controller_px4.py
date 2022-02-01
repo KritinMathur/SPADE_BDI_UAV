@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from ast import excepthandler
 import asyncio
 import zmq
 import zmq.asyncio
@@ -32,6 +33,12 @@ async def connect_mav():
             print("Global position estimate ok")
             break
 
+    try:
+        await drone.clear_mission()
+        print('Mission Cleared')
+    except:
+        print('Mission Not Cleared')
+
     cmd_context = zmq.asyncio.Context()
     telem_context = zmq.asyncio.Context()
 
@@ -43,7 +50,7 @@ async def connect_mav():
     telem_socket.connect(f"tcp://localhost:{str(int(cont_args.mc_port)+1000)}")
 
     ## Task list
-    mission_task,rtl_task = None,None
+    mission_task,rtl_task,pause_task = None,None,None
     
 
     while True:
@@ -61,14 +68,58 @@ async def connect_mav():
 
         print("Received [ %s ]" % message)
         message = message.decode()
-        print(message)
+
+        print(str(message)[:17])
+
+        if str(message)[:17] == 'do_upload_mission':
+
+            mission_data = json.loads(str(message)[18:])
+            
+            mission_items = []
+
+            for mission_waypoint in mission_data['data']:
+
+
+                print(mission_waypoint[8],mission_waypoint[9],mission_waypoint[10])
+                print()
+
+                mission_items.append(MissionItem(float(mission_waypoint[8]),
+                                                float(mission_waypoint[9]),
+                                                float(mission_waypoint[10]),
+                                                10,
+                                                True,
+                                                float('nan'),
+                                                float('nan'),
+                                                MissionItem.CameraAction.NONE,
+                                                float('nan'),
+                                                float('nan'),
+                                                float('nan'),
+                                                float('nan'),
+                                                float('nan')))
+
+            mission_plan = MissionPlan(mission_items)
+
+            print("-- Uploading mission")
+            await drone.mission.upload_mission(mission_plan)
+
 
         if str(message) == 'do_mission' :
 
             if rtl_task:
                 rtl_task.cancel()
+        
+            if pause_task:
+                pause_task.cancel()
 
             mission_task = asyncio.ensure_future(do_mission(drone))
+
+        if str(message) == 'pause_mission':
+            
+            if mission_task:
+                mission_task.cancel()
+
+            print('check 1')
+            pause_task = asyncio.ensure_future(pause_mission(drone))
 
         if str(message) == 'do_rtl':
 
@@ -113,51 +164,6 @@ async def do_takeoff(drone):
 
 
 async def do_mission(drone):
-    mission_items = []
-    mission_items.append(MissionItem(47.398039859999997,
-                                     8.5455725400000002,
-                                     25,
-                                     10,
-                                     True,
-                                     float('nan'),
-                                     float('nan'),
-                                     MissionItem.CameraAction.NONE,
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan')))
-    mission_items.append(MissionItem(47.398036222362471,
-                                     8.5450146439425509,
-                                     25,
-                                     10,
-                                     True,
-                                     float('nan'),
-                                     float('nan'),
-                                     MissionItem.CameraAction.NONE,
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan')))
-    mission_items.append(MissionItem(47.397825620791885,
-                                     8.5450092830163271,
-                                     25,
-                                     10,
-                                     True,
-                                     float('nan'),
-                                     float('nan'),
-                                     MissionItem.CameraAction.NONE,
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan'),
-                                     float('nan')))
-
-    mission_plan = MissionPlan(mission_items)
-
-    print("-- Uploading mission")
-    await drone.mission.upload_mission(mission_plan)
 
     print("-- Arming")
     await drone.action.arm()
@@ -170,6 +176,13 @@ async def do_mission(drone):
 
         if await drone.mission.is_mission_finished():
             break
+
+async def pause_mission(drone):
+
+    print('here 2')
+    print("-- Holding")
+    await drone.action.hold()
+
 
 async def do_rtl(drone):
     print("-- Returning to Launch")

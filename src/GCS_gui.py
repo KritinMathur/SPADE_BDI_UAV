@@ -15,7 +15,7 @@ from spade import quit_spade
 from spade_bdi.bdi import BDIAgent
 import asyncio
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from gui.GCS import Ui_MainWindow
 from gui.AuctionLog import Ui_Auction_log_Dialog
 from gui.AddEdit_MAV import Ui_Add_mav_Dialog        
@@ -56,7 +56,43 @@ class GCSAgent(PubSubMixin,Agent):
                 print(send_payload)
                 await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.faulty_mav_name)
 
-                await asyncio.sleep(1)
+            if gcs_ui.active_auction:
+                gcs_ui.active_auction = False
+
+                send_payload = {'ID' : gcs_ui.alloc_mav_name,'cmd':'set_role_mission', 'data': gcs_ui.alloc_auction_data }
+                print(send_payload)
+                await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.alloc_mav_name)
+
+            if gcs_ui.active_do_mission:
+                gcs_ui.active_do_mission = False
+
+                send_payload = {'ID' : gcs_ui.action_mav_name,'cmd':'do_mission', 'data': None }
+                print(send_payload)
+                await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.action_mav_name)
+
+            if gcs_ui.active_pause_mission:
+                gcs_ui.active_pause_mission = False
+
+                send_payload = {'ID' : gcs_ui.action_mav_name,'cmd':'pause_mission', 'data': None }
+                print(send_payload)
+                await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.action_mav_name)
+
+            if gcs_ui.active_land:
+                gcs_ui.active_land = False
+
+                send_payload = {'ID' : gcs_ui.action_mav_name,'cmd':'do_land', 'data': None }
+                print(send_payload)
+                await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.action_mav_name) 
+
+            if gcs_ui.active_RTL:
+                gcs_ui.active_RTL = False
+
+                send_payload = {'ID' : gcs_ui.action_mav_name,'cmd':'do_rtl', 'data': None }
+                print(send_payload)
+                await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload), item_id = gcs_ui.action_mav_name)              
+
+
+            await asyncio.sleep(1)
 
 
 
@@ -283,6 +319,10 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
 class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
     def __init__(self):
         super(Gcs, self).__init__()
+
+        #Icon
+        self.setWindowIcon(QtGui.QIcon('src/gui/logo.png'))
+
         self.setupUi(self)
 
         self.setup_gcs_agent()
@@ -292,6 +332,14 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.edit_mav_pushButton.clicked.connect(self.handleEditMAV)
         self.connected_mav_list.currentRowChanged.connect(self.handleConnectRowChange)
 
+        #Auction
+        self.start_auction_pushButton.clicked.connect(self.handleStartAuction)
+
+        #Mission
+        self.do_mission_pushButton.clicked.connect(self.handleDoMission)
+        self.pause_missions_pushButton.clicked.connect(self.handlePauseMission)
+        self.land_pushButton.clicked.connect(self.handleLand)
+        self.rtl_pushButton.clicked.connect(self.handleRTL)
 
         #SIM
         self.start_sim_pushButton.clicked.connect(self.handleStartSim)
@@ -307,6 +355,11 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         self.current_selected_mav = None
         self.active_faults = False
+        self.active_auction = False
+        self.active_do_mission = False
+        self.active_pause_mission = False
+        self.active_land = False
+        self.active_RTL = False
 
         self.px4_sim_path = None
         self.ardupilot_sim_path = None
@@ -352,6 +405,7 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.mav_name_simulate_faults_comboBox.addItem('[All]')
         self.mav_name_comboBox.addItem('[All]')
         self.parent_mav_comboBox.addItem('[Auto]')
+        self.parent_mav_comboBox.addItem('[None]')
         self.mav_name_action_comboBox.addItem('[All]')
 
         for mav_party in gcs.mav_parties:
@@ -399,6 +453,42 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         if self.connected_mav_list.currentItem():
             self.current_selected_mav = self.connected_mav_list.currentItem().text()
+
+    def handleStartAuction(self):
+        
+        self.alloc_mav_name = self.mav_name_comboBox.currentText()
+        self.alloc_role = self.selected_role_comboBox.currentText()
+        self.alloc_parent_mav = self.parent_mav_comboBox.currentText()
+        self.alloc_mission_name = self.MMU_comboBox.currentText()
+
+        self.alloc_mission_data = next(mission_data for mission_data in gcs.mav_missions if mission_data["name"] == self.alloc_mission_name)
+
+        self.alloc_auction_data = {'role' : self.alloc_role,'parent' : self.alloc_parent_mav,'mission':self.alloc_mission_data}
+
+        #print(self.alloc_auction_data)
+
+        self.active_auction = True
+
+    def handleDoMission(self):
+        
+        self.action_mav_name = self.mav_name_action_comboBox.currentText()
+        self.active_do_mission = True
+
+    def handlePauseMission(self):
+
+        self.action_mav_name = self.mav_name_action_comboBox.currentText()
+        self.active_pause_mission = True
+
+    def handleLand(self):
+
+        self.action_mav_name = self.mav_name_action_comboBox.currentText()
+        self.active_land = True
+
+    def handleRTL(self):
+
+        self.action_mav_name = self.mav_name_action_comboBox.currentText()
+        self.active_RTL = True
+
 
     def handleStartSim(self):
         if self.px4_sim_path:
