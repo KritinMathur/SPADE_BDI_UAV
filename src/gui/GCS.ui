@@ -1031,7 +1031,7 @@ p, li { white-space: pre-wrap; }
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="plan_map_widget" native="true">
+     <widget class="QWidget" name="horizontalLayoutWidget_2">
       <property name="geometry">
        <rect>
         <x>-1</x>
@@ -1040,8 +1040,9 @@ p, li { white-space: pre-wrap; }
         <height>701</height>
        </rect>
       </property>
+      <layout class="QHBoxLayout" name="Plan_misssion_hlay"/>
      </widget>
-     <zorder>plan_map_widget</zorder>
+     <zorder>horizontalLayoutWidget_2</zorder>
      <zorder>Missions_frame</zorder>
     </widget>
     <widget class="QWidget" name="Auction_tab">
@@ -1171,6 +1172,11 @@ p, li { white-space: pre-wrap; }
            <item>
             <property name="text">
              <string>[Auto]</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>[None]</string>
             </property>
            </item>
           </widget>
@@ -1367,7 +1373,7 @@ p, li { white-space: pre-wrap; }
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="missions_map_widget" native="true">
+     <widget class="QWidget" name="horizontalLayoutWidget">
       <property name="geometry">
        <rect>
         <x>-1</x>
@@ -1376,8 +1382,9 @@ p, li { white-space: pre-wrap; }
         <height>701</height>
        </rect>
       </property>
+      <layout class="QHBoxLayout" name="Missions_map_hlay"/>
      </widget>
-     <zorder>missions_map_widget</zorder>
+     <zorder>horizontalLayoutWidget</zorder>
      <zorder>Action_frame</zorder>
     </widget>
     <widget class="QWidget" name="Analyze_tab">
@@ -1731,9 +1738,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>0</x>
           <y>280</y>
-          <width>451</width>
+          <width>471</width>
           <height>25</height>
          </rect>
         </property>
@@ -1789,15 +1796,16 @@ p, li { white-space: pre-wrap; }
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="set_home_map_widget" native="true">
+       <widget class="QWidget" name="horizontalLayoutWidget_3">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
           <width>471</width>
-          <height>311</height>
+          <height>281</height>
          </rect>
         </property>
+        <layout class="QHBoxLayout" name="Set_home_map_hlay"/>
        </widget>
       </widget>
      </widget>

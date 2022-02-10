@@ -16,6 +16,7 @@ from spade_bdi.bdi import BDIAgent
 import asyncio
 
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from gui.GCS import Ui_MainWindow
 from gui.AuctionLog import Ui_Auction_log_Dialog
 from gui.AddEdit_MAV import Ui_Add_mav_Dialog        
@@ -323,9 +324,16 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         #Icon
         self.setWindowIcon(QtGui.QIcon('src/gui/logo.png'))
 
+        #Create GUI
         self.setupUi(self)
 
+        #Create Connections and add 3rd party widgets
+        self.connectUi()
+
+        #Setup
         self.setup_gcs_agent()
+
+    def connectUi(self):
 
         #MAV
         self.add_mav_pushButton.clicked.connect(self.handleAddMAV)
@@ -348,7 +356,12 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         #Menu Bar
         self.actionAdd_Plans.triggered.connect(self.filemenu_addplans)
-        self.actionPX.triggered.connect(self.editmenu_addsimpath_px)        
+        self.actionPX.triggered.connect(self.editmenu_addsimpath_px)       
+
+        #Maps
+        self.missions_map_widget = QWebEngineView()
+        self.loadMissionPage() 
+        self.Missions_map_hlay.addWidget(self.missions_map_widget)
 
     
     def setup_gcs_agent(self):
@@ -375,6 +388,8 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
     def update_telem_value(self,telem_log):
 
         print(self.current_selected_mav)
+
+        #MAV Tab
         if self.current_selected_mav:
 
             
@@ -392,6 +407,15 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
                 self.altitude_rel_lcdNumber.display(self.telem_current_mav['data']['telem']['pos']['alt_rel'])
             except:
                 print('Telemetry update error')
+
+        #Mission Tab
+        if self.AllTabWidget.currentIndex() == 3:
+            print(telem_log)
+            js_safe_telemetry = json.dumps(telem_log)
+            print(js_safe_telemetry)
+            self.missions_map_widget.page().runJavaScript("getTelemetryInfo({})".format(js_safe_telemetry))
+
+
     
     def update_gcs_agent(self):
 
@@ -552,6 +576,13 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
             self.px4_sim_path = file
             print(self.px4_sim_path)
 
+    def loadMissionPage(self):
+
+        with open('src/live_location.html', 'r') as f:
+
+            html = f.read()
+            print('Loaded HTML')
+            self.missions_map_widget.setHtml(html)
         
 
 if __name__ == "__main__":

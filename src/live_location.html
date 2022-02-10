@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Animate a marker</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+
+.marker {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/a9/Breezeicons-devices-22-uav-quadcopter.svg');
+    background-size: cover;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1Ijoia3JpdGlubWF0aHVyIiwiYSI6ImNrb3VlNDRrdDBobDMydm8xazUybm93NnUifQ.u6wB_cbB8XlgpcW40YWk0w';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [0, 0],
+        zoom: 2
+    });
+
+    marker_json = {};
+
+    const el = document.createElement('div');
+    el.className = 'marker';
+
+    // Define the animation.
+    function animateMarker(telemetry_json) {
+
+        //check existence of marker
+        for (let index = 0; index < telemetry_json.length; ++index) {
+
+            if(!marker_json.hasOwnProperty(telemetry_json[index]["ID"])){
+                marker_json[telemetry_json[index]["ID"]] = new mapboxgl.Marker(el);
+            }
+
+        }
+
+        for (let index = 0; index < telemetry_json.length; ++index) {
+
+            marker_json[telemetry_json[index]["ID"]].setLngLat([
+            telemetry_json[index]["data"]["telem"]["pos"]["lon"],
+            telemetry_json[index]["data"]["telem"]["pos"]["lat"]
+            ]);
+        
+            marker_json[telemetry_json[index]["ID"]].addTo(map);
+
+        }
+    
+    }
+
+    // Start the animation.
+    function getTelemetryInfo(telemetry_data) {
+        
+        var telemetry_data = decodeHtml(JSON.stringify(telemetry_data));
+        var telemetry_json = JSON.parse(telemetry_data.replace(/&quot;/g,'"'));
+        
+        requestAnimationFrame(function() { 
+            animateMarker(telemetry_json);
+        });
+    }
+
+    function decodeHtml(html) {
+        let areaElement = document.createElement("textarea");
+        areaElement.innerHTML = html;
+    
+        return areaElement.value;
+    }
+    
+</script>
+
+</body>
+</html>

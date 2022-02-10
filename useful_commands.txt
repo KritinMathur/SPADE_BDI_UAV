@@ -31,6 +31,8 @@ auction look like :
 MAV1_Px4 - M1
 MAV2_Ardupilot - M2
 
+sudo apt install python3-pyqt5.qtwebengine
+
 pip list exhaustive:
 pip3 freeze > requirements.txt
 
