@@ -275,20 +275,23 @@ class MAVAgent(PubSubMixin, BDIAgent):
         async def run(self):
 
             if mav.telem_unit:
-                print('Sending telemetry data')
+                #print('Sending telemetry data')
 
-                payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': HETRO_CHAR}}
-                
+                payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': HETRO_CHAR,'log':mav.log_info}}
+ 
                 try:
                     await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)
-                    print('telemetry retraction successful')
+                    #print('telemetry retraction successful')
                 except:
-                    print('Error with telemetry retraction')
+                    #print('Error with telemetry retraction')
+                    pass
 
                 await mav.pubsub.publish('pubsub.localhost', "Telemetry_node",json.dumps(payload),item_id=args.name)
-
+                mav.log_info = []
+                
             else:
-                print('Not sending telemetry data')
+                #print('Not sending telemetry data')
+                pass
 
             await asyncio.sleep(1)
 
@@ -310,26 +313,31 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
                     try:
                         await mav.pubsub.retract('pubsub.localhost', "Cmd_node", item_id=args.name)
-                        print('command retraction successful')
+                        #print('command retraction successful')
                     except:
-                        print('Error with command retraction')
+                        #print('Error with command retraction')
+                        pass
 
 
                     if command_gcs['cmd'] == 'do_mission':
                         print('Starting mission')
                         mav.bdi.set_belief('go_mission', 'positive')
+                        mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'BDI','go_mission')) ## Logging BDI ##
 
                     if command_gcs['cmd'] == 'pause_mission':
                         print('Pausing mission')
                         mav.bdi.set_belief('hold_mission', 'positive')
+                        mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'BDI','pause_mission')) ## Logging BDI ##
 
                     if command_gcs['cmd'] == 'do_rtl':
                         print('RTL')
                         mav.bdi.set_belief('rtl', 'positive')
+                        mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'BDI','rtl')) ## Logging BDI ##
 
                     if command_gcs['cmd'] == 'do_land':
                         print('land')
                         mav.bdi.set_belief('land', 'positive')
+                        mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'BDI','land')) ## Logging BDI ##
 
 
                     if command_gcs['cmd'] == 'set_role_mission':
@@ -340,6 +348,7 @@ class MAVAgent(PubSubMixin, BDIAgent):
                         mav.mission_data = command_gcs['data']['mission']
 
                         mav.bdi.set_belief('upload_mission', 'positive')
+                        mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'Task','Upload Mission')) ## Logging task ##
 
                     if command_gcs['cmd'] == 'set_fault':
 
@@ -348,23 +357,28 @@ class MAVAgent(PubSubMixin, BDIAgent):
                         if command_gcs['data']['low_battery']:
                             print('belief set low battery')
                             mav.bdi.set_belief('fault_low_battery','positive')
+                            mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'Fault','low battery')) ## Logging fault ##
 
                         if command_gcs['data']['gps_lost']:
                             print('belief set gps lost')
                             mav.bdi.set_belief('fault_gps_lost','positive')
+                            mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'Fault','GPS lost')) ## Logging fault ##
 
                         if command_gcs['data']['sensor_failure']:
                             print('belief set sensor failure')
                             mav.bdi.set_belief('fault_sensor_failure','positive')
+                            mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'Fault','sensor failure')) ## Logging fault ##
 
                         if command_gcs['data']['near_neighbour']:
                             print('belief set near neighbour')
                             mav.bdi.set_belief('fault_near_neighbour','positive')
+                            mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'Fault','near neighbour')) ## Logging fault ##
 
                         if command_gcs['data']['no_neighbour']:
                             print('belief set no neighbour')
                             mav.bdi.set_belief('fault_no_neighbour','positive')
-            
+                            mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'Fault','no neighbour')) ## Logging fault ##
+
             await asyncio.sleep(1)
 
     async def setup(self):
@@ -395,6 +409,8 @@ class MAVAgent(PubSubMixin, BDIAgent):
         print("neighbor list" ,self.presence.get_contacts())
         print("number of neighbors",len(self.presence.get_contacts()))
         '''
+        #Log Info
+        self.log_info = []
 
         # ROLE DEFINTION
         self.role = 'Unallocated'
@@ -425,6 +441,8 @@ class MAVAgent(PubSubMixin, BDIAgent):
         print('CmdSubscriber starting')
         cmd_subscriber_behavior = self.CmdSubscriber()
         self.add_behaviour(cmd_subscriber_behavior)
+
+        mav.log_info.append('{}-{}-{}-{}'.format(args.name,mav.role,'State','Online')) ## Logging state ##
 
         '''
         print("GCS Agent starting . . .")

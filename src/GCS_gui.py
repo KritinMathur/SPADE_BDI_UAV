@@ -387,7 +387,8 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
     def update_telem_value(self,telem_log):
 
-        print(self.current_selected_mav)
+        #print(self.current_selected_mav)
+        print(telem_log)
 
         #MAV Tab
         if self.current_selected_mav:
@@ -410,10 +411,16 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         #Mission Tab
         if self.AllTabWidget.currentIndex() == 3:
-            print(telem_log)
+            #print(telem_log)
             js_safe_telemetry = json.dumps(telem_log)
-            print(js_safe_telemetry)
+            #print(js_safe_telemetry)
             self.missions_map_widget.page().runJavaScript("getTelemetryInfo({})".format(js_safe_telemetry))
+
+        #Analyse Tab - logging and   
+        for telem in telem_log:
+            logs_mav = telem['data']['log']
+            for log in logs_mav:
+                self.logs_textBrowser.append(log)
 
 
     
