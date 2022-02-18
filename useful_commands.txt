@@ -24,7 +24,7 @@ log looks like :
 
 {MAV Name} - {MAV Role} - Neighbors - number of links - Info
 
-{MAV Name} - {MAV Role} - Transaction - query/requests/contractnet/propose/warning
+{MAV Name} - {MAV Role} - Transaction - query/requests/contractnet/propose/ - info [sender,receiver,proposal yes or no]
 
 auction look like :
 
@@ -45,3 +45,4 @@ pip install mavsdk
 pip install pyqt5
 pip install pyqt5-tools
 pip install aioconsole
+pip install matplotlib

@@ -1,5 +1,6 @@
 import os
 import time
+import random
 import asyncio
 import aioconsole
 from spade.message import Message
@@ -14,6 +15,11 @@ import agentspeak
 from spade import quit_spade
 from spade_bdi.bdi import BDIAgent
 import asyncio
+
+import matplotlib
+matplotlib.use('Qt5Agg')
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -37,8 +43,8 @@ class GCSAgent(PubSubMixin,Agent):
 
             telem_literal_lst = [ json.loads(telem.data) for telem in telem_payload ]
 
-            #print(telem_literal_lst)
-            gcs.telem_log = telem_literal_lst
+            #update telemetry log
+            await gcs.update_mav_logs(telem_literal_lst)
 
             await asyncio.sleep(1)
 
@@ -97,150 +103,155 @@ class GCSAgent(PubSubMixin,Agent):
 
 
 
-    class MyBehav(CyclicBehaviour):
+    # class MyBehav(CyclicBehaviour):
 
-        class FIPA_Task_auction:
-            class Handel_Online(CyclicBehaviour):
-                async def run(self):
-                    msg = await self.receive()
-                    if msg is not None:
-                        mav_party = msg.body
-                        print(f'IN - Online from {mav_party} to {args.name}')
+    #     class FIPA_Task_auction:
+    #         class Handel_Online(CyclicBehaviour):
+    #             async def run(self):
+    #                 msg = await self.receive()
+    #                 if msg is not None:
+    #                     mav_party = msg.body
+    #                     print(f'IN - Online from {mav_party} to {args.name}')
                         
-                        print(f'OUT - Task Cost from {args.name} to {mav_party}')
-                        msg = Message(to=f"{mav_party}@{args.server}")
-                        msg.set_metadata("performative", "task_cost")
-                        msg.body = gcs.task_cost # TASK Cost calculation
-                        await self.send(msg)
+    #                     print(f'OUT - Task Cost from {args.name} to {mav_party}')
+    #                     msg = Message(to=f"{mav_party}@{args.server}")
+    #                     msg.set_metadata("performative", "task_cost")
+    #                     msg.body = gcs.task_cost # TASK Cost calculation
+    #                     await self.send(msg)
 
-                    await asyncio.sleep(1)
+    #                 await asyncio.sleep(1)
 
-            class Handel_Bids(CyclicBehaviour):
-                async def run(self):
-                    msg = await self.receive()
-                    if msg is not None:
+    #         class Handel_Bids(CyclicBehaviour):
+    #             async def run(self):
+    #                 msg = await self.receive()
+    #                 if msg is not None:
 
-                        msg_data = json.loads(msg.body)
-                        mav_party = msg_data['name']
-                        mav_bid = msg_data['data']
-                        print(f'IN - Bids from {mav_party} to {args.name}')
+    #                     msg_data = json.loads(msg.body)
+    #                     mav_party = msg_data['name']
+    #                     mav_bid = msg_data['data']
+    #                     print(f'IN - Bids from {mav_party} to {args.name}')
 
-                        if mav_bid < gcs.auction_threshold:
-                            #REJECT BID
-                            print(f'OUT - Reject Bid from {args.name} to {mav_party}')
-                            msg = Message(to=f"{mav_party}@{args.server}")
-                            msg.set_metadata("performative", "reject_bid")
-                            msg.body = args.name
-                            await self.send(msg)
+    #                     if mav_bid < gcs.auction_threshold:
+    #                         #REJECT BID
+    #                         print(f'OUT - Reject Bid from {args.name} to {mav_party}')
+    #                         msg = Message(to=f"{mav_party}@{args.server}")
+    #                         msg.set_metadata("performative", "reject_bid")
+    #                         msg.body = args.name
+    #                         await self.send(msg)
 
-                        else:
-                            #ACCEPT BID
-                            print(f'OUT - Accept Bid from {args.name} to {mav_party}')
-                            msg = Message(to=f"{mav_party}@{args.server}")
-                            msg.set_metadata("performative", "accept_bid")
-                            msg.body = args.name
-                            await self.send(msg)
+    #                     else:
+    #                         #ACCEPT BID
+    #                         print(f'OUT - Accept Bid from {args.name} to {mav_party}')
+    #                         msg = Message(to=f"{mav_party}@{args.server}")
+    #                         msg.set_metadata("performative", "accept_bid")
+    #                         msg.body = args.name
+    #                         await self.send(msg)
 
-                            gcs.current_bids[mav_party] = mav_bid 
+    #                         gcs.current_bids[mav_party] = mav_bid 
 
-                    await asyncio.sleep(1)
+    #                 await asyncio.sleep(1)
         
-        async def on_start(self):
-            print("Starting behaviour . . .")
-            self.counter = 0
+    #     async def on_start(self):
+    #         print("Starting behaviour . . .")
+    #         self.counter = 0
 
-        async def run(self):
-            print("Counter: {}".format(self.counter))
-            self.counter += 1
+    #     async def run(self):
+    #         print("Counter: {}".format(self.counter))
+    #         self.counter += 1
             
-            mav_ID = await aioconsole.ainput('Enter ID :-  ')
-            mav_command = await aioconsole.ainput('Enter Command :-  ')
-            send_payload = {'ID' : mav_ID, 'data':mav_command}
+    #         mav_ID = await aioconsole.ainput('Enter ID :-  ')
+    #         mav_command = await aioconsole.ainput('Enter Command :-  ')
+    #         send_payload = {'ID' : mav_ID, 'data':mav_command}
 
-            await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload))
-            time.sleep(4)
+    #         await gcs.pubsub.publish('pubsub.localhost', "Cmd_node", json.dumps(send_payload))
+    #         time.sleep(4)
 
-            if send_payload['data'] == 'get_info':
-                Telem_payload = await gcs.pubsub.get_items('pubsub.localhost', "Telemetry_node")
-                telem_literal = Telem_payload[-1].data
-                telem = json.loads(telem_literal)
-                print('Response ID :'+ telem['ID'])
-                print(telem['data'])
+    #         if send_payload['data'] == 'get_info':
+    #             Telem_payload = await gcs.pubsub.get_items('pubsub.localhost', "Telemetry_node")
+    #             telem_literal = Telem_payload[-1].data
+    #             telem = json.loads(telem_literal)
+    #             print('Response ID :'+ telem['ID'])
+    #             print(telem['data'])
 
-            #START AUCTION
-            if send_payload['ID'] == 'start_auction':
+    #         #START AUCTION
+    #         if send_payload['ID'] == 'start_auction':
                 
-                gcs.auction_file_path = send_payload['data']
-                gcs.auction_threshold = 1
-                gcs.task_cost = '4'
+    #             gcs.auction_file_path = send_payload['data']
+    #             gcs.auction_threshold = 1
+    #             gcs.task_cost = '4'
 
-                #start auction
-                for mav_party in gcs.mav_parties:        
+    #             #start auction
+    #             for mav_party in gcs.mav_parties:        
 
-                    print(f'OUT - Start Auction from {args.name} to {mav_party}')
-                    msg = Message(to=f"{mav_party}@{args.server}")
-                    msg.set_metadata("performative", "start_auction")
-                    msg.body = args.name
-                    await self.send(msg)
+    #                 print(f'OUT - Start Auction from {args.name} to {mav_party}')
+    #                 msg = Message(to=f"{mav_party}@{args.server}")
+    #                 msg.set_metadata("performative", "start_auction")
+    #                 msg.body = args.name
+    #                 await self.send(msg)
 
-                while True:
-                    gcs.current_bids = {}
-                    deadline = 7
-                    await asyncio.sleep(deadline)
+    #             while True:
+    #                 gcs.current_bids = {}
+    #                 deadline = 7
+    #                 await asyncio.sleep(deadline)
 
-                    '''
-                    temp = min(gcs.current_bids.values())
-                    res = [key for key in gcs.current_bids if gcs.current_bids[key] == temp]
-                    print('min bid - ', res)
-                    '''
+    #                 '''
+    #                 temp = min(gcs.current_bids.values())
+    #                 res = [key for key in gcs.current_bids if gcs.current_bids[key] == temp]
+    #                 print('min bid - ', res)
+    #                 '''
 
-                    if len(gcs.current_bids) > 1:
-                        # threshold +
-                        gcs.auction_threshold += 1
+    #                 if len(gcs.current_bids) > 1:
+    #                     # threshold +
+    #                     gcs.auction_threshold += 1
 
-                        for mav_party in gcs.current_bids:
-                            print(f'OUT - Threshold Plus from {args.name} to {mav_party}')
-                            msg = Message(to=f"{mav_party}@{args.server}")
-                            msg.set_metadata("performative", "threshold_plus")
-                            msg.body = gcs.task_cost
-                            await self.send(msg)
+    #                     for mav_party in gcs.current_bids:
+    #                         print(f'OUT - Threshold Plus from {args.name} to {mav_party}')
+    #                         msg = Message(to=f"{mav_party}@{args.server}")
+    #                         msg.set_metadata("performative", "threshold_plus")
+    #                         msg.body = gcs.task_cost
+    #                         await self.send(msg)
 
-                    else :
-                        break
+    #                 else :
+    #                     break
 
-                if len(gcs.current_bids) == 1: 
-                    # allocate task
-                    mav_party,bid_value = gcs.current_bids.popitem()
-                    print(bid_value)
+    #             if len(gcs.current_bids) == 1: 
+    #                 # allocate task
+    #                 mav_party,bid_value = gcs.current_bids.popitem()
+    #                 print(bid_value)
 
-                    print(f'OUT - Allocate Task from {args.name} to {mav_party}')
-                    msg = Message(to=f"{mav_party}@{args.server}")
-                    msg.set_metadata("performative", "allocate_task")
-                    msg.body = args.name
-                    await self.send(msg)
+    #                 print(f'OUT - Allocate Task from {args.name} to {mav_party}')
+    #                 msg = Message(to=f"{mav_party}@{args.server}")
+    #                 msg.set_metadata("performative", "allocate_task")
+    #                 msg.body = args.name
+    #                 await self.send(msg)
 
-                else:
-                    print(len(gcs.current_bids))
-                    raise Exception
+    #             else:
+    #                 print(len(gcs.current_bids))
+    #                 raise Exception
 
     
-            await asyncio.sleep(1)
+    #         await asyncio.sleep(1)
 
     async def setup(self):
 
+        t = time.localtime()
+        current_time = time.strftime("[START %H:%M:%S ]\n", t)
+        
         self.mav_parties = ['test','test2','test3','test4','test5']
         self.mav_missions = []
+        self.mav_logs = {}
+        self.logs_data = [current_time]
 
-        CNP_online_template  = Template()
-        CNP_online_template.set_metadata("performative","online")
-        CNP_bids_template = Template()
-        CNP_bids_template.set_metadata("performative","bids")
+        # CNP_online_template  = Template()
+        # CNP_online_template.set_metadata("performative","online")
+        # CNP_bids_template = Template()
+        # CNP_bids_template.set_metadata("performative","bids")
 
-        CNP_online_behave = self.MyBehav.FIPA_Task_auction.Handel_Online()
-        CNP_bids_behave = self.MyBehav.FIPA_Task_auction.Handel_Bids()
+        # CNP_online_behave = self.MyBehav.FIPA_Task_auction.Handel_Online()
+        # CNP_bids_behave = self.MyBehav.FIPA_Task_auction.Handel_Bids()
 
-        self.add_behaviour(CNP_online_behave,CNP_online_template)
-        self.add_behaviour(CNP_bids_behave,CNP_bids_template)
+        # self.add_behaviour(CNP_online_behave,CNP_online_template)
+        # self.add_behaviour(CNP_bids_behave,CNP_bids_template)
 
         print("GCS Agent starting . . .")
         telem_subscriber_behaviour = self.TelemSubscriber()
@@ -248,14 +259,30 @@ class GCSAgent(PubSubMixin,Agent):
         cmd_publisher_behaviour = self.CmdPublisher()
         self.add_behaviour(cmd_publisher_behaviour)
 
+    async def update_mav_logs(self,telem_literal_lst):
+        #print(telem_literal_lst)
+        gcs.current_telem_log = telem_literal_lst
+
+        #Add new mav to mav logs
+        for telem in gcs.current_telem_log:
+            if telem['ID'] not in self.mav_logs.keys():
+                self.mav_logs[telem['ID']] = []
+
+        #Update mav logs
+        for telem in gcs.current_telem_log:
+            self.mav_logs[telem['ID']].append(telem['data'])
+
+            if len(self.mav_logs[telem['ID']]) >= 25:
+                self.mav_logs[telem['ID']].pop(0)
+        
 class TelemetryThread(QtCore.QThread):
     change_telem_value = QtCore.pyqtSignal(object)
 
     def run(self):
         while True:
-            telem_log = gcs.telem_log
+            current_telem_log = gcs.current_telem_log
             time.sleep(1)
-            self.change_telem_value.emit(telem_log)
+            self.change_telem_value.emit(current_telem_log)
 
 
 
@@ -317,6 +344,14 @@ class AddMAV(QtWidgets.QDialog,Ui_Add_mav_Dialog):
         print('trigger reject')
         self.reject()
 
+class MplCanvas(FigureCanvas):
+
+    def __init__(self, parent=None, width=5, height=4, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+        self.axes.get_xaxis().set_visible(False)
+        super(MplCanvas, self).__init__(fig)
+
 class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
     def __init__(self):
         super(Gcs, self).__init__()
@@ -356,6 +391,7 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         #Menu Bar
         self.actionAdd_Plans.triggered.connect(self.filemenu_addplans)
+        self.actionExport_Logs.triggered.connect(self.filemenu_exportlogs)
         self.actionPX.triggered.connect(self.editmenu_addsimpath_px)       
 
         #Maps
@@ -363,10 +399,16 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.loadMissionPage() 
         self.Missions_map_hlay.addWidget(self.missions_map_widget)
 
+        #Plots
+        self.canvas = MplCanvas(self, width=5, height=4, dpi=100)
+        self.plots_telem_hlay.addWidget(self.canvas)
+        self.mav_name_plots_listWidget.currentRowChanged.connect(self.handlePlotMavRowChange)
+
     
     def setup_gcs_agent(self):
 
         self.current_selected_mav = None
+        self.current_plot_mav = None
         self.active_faults = False
         self.active_auction = False
         self.active_do_mission = False
@@ -385,16 +427,16 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.telem_thread.change_telem_value.connect(self.update_telem_value)
         self.telem_thread.start()
 
-    def update_telem_value(self,telem_log):
+    def update_telem_value(self,current_telem_log):
 
         #print(self.current_selected_mav)
-        print(telem_log)
+        print(current_telem_log)
 
         #MAV Tab
         if self.current_selected_mav:
 
             
-            for telem in telem_log:
+            for telem in current_telem_log:
                 if telem['ID'] == self.current_selected_mav:
                     self.telem_current_mav = telem
                     break
@@ -411,17 +453,20 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
         #Mission Tab
         if self.AllTabWidget.currentIndex() == 3:
-            #print(telem_log)
-            js_safe_telemetry = json.dumps(telem_log)
+            #print(current_telem_log)
+            js_safe_telemetry = json.dumps(current_telem_log)
             #print(js_safe_telemetry)
             self.missions_map_widget.page().runJavaScript("getTelemetryInfo({})".format(js_safe_telemetry))
 
-        #Analyse Tab - logging and   
-        for telem in telem_log:
+        #Analyse Tab - logging  
+        for telem in current_telem_log:
             logs_mav = telem['data']['log']
             for log in logs_mav:
+                gcs.logs_data.append(log+'\n')
                 self.logs_textBrowser.append(log)
 
+        #Analyse Tab - Plots
+        self.update_plot()
 
     
     def update_gcs_agent(self):
@@ -520,6 +565,10 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         self.action_mav_name = self.mav_name_action_comboBox.currentText()
         self.active_RTL = True
 
+    def handlePlotMavRowChange(self):
+
+        if self.mav_name_plots_listWidget.currentItem():
+            self.current_plot_mav = self.mav_name_plots_listWidget.currentItem().text()
 
     def handleStartSim(self):
         if self.px4_sim_path:
@@ -577,6 +626,16 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
 
             self.update_gcs_agent()
 
+    def filemenu_exportlogs(self):
+        name = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')
+        print(name)
+
+        if name != ('',''):
+            file = open(name[0],'w')
+            text = gcs.logs_data
+            file.writelines(text)
+            file.close()
+
     def editmenu_addsimpath_px(self):
         file = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
         if file != '':
@@ -590,6 +649,24 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
             html = f.read()
             print('Loaded HTML')
             self.missions_map_widget.setHtml(html)
+
+    def update_plot(self):
+
+        self.ydata = []
+        self.xdata = []
+        self.canvas.axes.cla()
+
+        if self.mav_name_plots_listWidget.currentItem():
+            if self.current_plot_mav:
+                
+                data = gcs.mav_logs[self.current_plot_mav]
+
+                for telemetry_unit in data:
+                    self.ydata.append(telemetry_unit['telem']['pos']['alt_abs'])
+                    self.xdata.append(telemetry_unit['timestamp'])
+            
+                self.canvas.axes.plot(self.xdata, self.ydata, 'r')
+                self.canvas.draw()
         
 
 if __name__ == "__main__":

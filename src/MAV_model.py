@@ -276,8 +276,11 @@ class MAVAgent(PubSubMixin, BDIAgent):
 
             if mav.telem_unit:
                 #print('Sending telemetry data')
+                
+                t = time.localtime()
+                current_time = time.strftime("%H:%M:%S", t)
 
-                payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': HETRO_CHAR,'log':mav.log_info}}
+                payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': HETRO_CHAR,'log':mav.log_info,'timestamp':current_time}}
  
                 try:
                     await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)

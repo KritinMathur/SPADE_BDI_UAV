@@ -1506,15 +1506,16 @@ p, li { white-space: pre-wrap; }
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QWidget" name="plots_telem_widget" native="true">
+       <widget class="QWidget" name="horizontalLayoutWidget_4">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>741</width>
+          <width>751</width>
           <height>321</height>
          </rect>
         </property>
+        <layout class="QHBoxLayout" name="plots_telem_hlay"/>
        </widget>
       </widget>
       <widget class="QGroupBox" name="MAV_name_plots_groupBox">
