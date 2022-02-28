@@ -27,6 +27,8 @@ from gui.GCS import Ui_MainWindow
 from gui.AuctionLog import Ui_Auction_log_Dialog
 from gui.AddEdit_MAV import Ui_Add_mav_Dialog        
 
+import geospatial
+
 class GCSAgent(PubSubMixin,Agent):
 
     class TelemSubscriber(CyclicBehaviour):
@@ -534,16 +536,51 @@ class Gcs(QtWidgets.QMainWindow,Ui_MainWindow):
         
         self.alloc_mav_name = self.mav_name_comboBox.currentText()
         self.alloc_role = self.selected_role_comboBox.currentText()
-        self.alloc_parent_mav = self.parent_mav_comboBox.currentText()
+        self.alloc_parent_mav = self.parent_mav_comboBox.currentText()  
         self.alloc_mission_name = self.MMU_comboBox.currentText()
 
-        self.alloc_mission_data = next(mission_data for mission_data in gcs.mav_missions if mission_data["name"] == self.alloc_mission_name)
+        if self.alloc_mav_name =='[All]' and self.alloc_role == '[Auto]' and self.alloc_mission_name =='[Auto]' and self.alloc_parent_mav == '[Auto]':
+            
+            M_name = []
+            CM = []
+            for mission_data in gcs.mav_missions:
+                clat,clon = 0,0
+                for mission_waypoint in mission_data['data']:
+                    clat += mission_waypoint[8]
+                    clon += mission_waypoint[9]
 
-        self.alloc_auction_data = {'role' : self.alloc_role,'parent' : self.alloc_parent_mav,'mission':self.alloc_mission_data}
+                clat /= len(mission_data['data'])
+                clon /= len(mission_data['data'])
 
-        #print(self.alloc_auction_data)
+                CM.append((clat,clon))
+                M_name.append(mission_data['name'])
 
-        self.active_auction = True
+            D = [[0 for _ in CM] for _ in CM] 
+            for i,centroid_i in enumerate(CM):
+                for j,centroid_j in enumerate(CM):
+                    D[i][j] = geospatial.distance(*centroid_i,*centroid_j)
+
+            zip_cm_name = zip(D,M_name)
+            zip_sorted = sorted(zip_cm_name,key=lambda x: sum(x[0]))
+            M_name,D = [ele for _,ele in zip_sorted],[ele for ele,_ in zip_sorted]
+
+            num_coordinater = round((len(M_name)-1)/3)
+
+            for i,mission in enumerate(M_name):
+                if i == 0:
+                    pass
+                if i <= num_coordinater:
+                    pass
+
+        else:
+            
+            self.alloc_mission_data = next(mission_data for mission_data in gcs.mav_missions if mission_data["name"] == self.alloc_mission_name)
+
+            self.alloc_auction_data = {'role' : self.alloc_role,'parent' : self.alloc_parent_mav,'mission':self.alloc_mission_data}
+
+            #print(self.alloc_auction_data)
+
+            self.active_auction = True
 
     def handleDoMission(self):
         
