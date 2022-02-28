@@ -12,6 +12,7 @@ Desktop application designed to test distributed communication protocols with he
 * [Prosody XMPP server](https://prosody.im/doc/xmpp)
 * [AgentSpeak(L)](http://astralanguage.com/wordpress/docs/introduction-to-agentspeakl/)
 * [ZeroMQ](https://zeromq.org/)
+* [Matplotlib](https://matplotlib.org/)
 
 ## Getting Started
 
@@ -54,8 +55,12 @@ pip install mavsdk
 pip install pyqt5
 pip install pyqt5-tools
 pip install aioconsole
+pip install matplotlib
 ```
-
+3. Install pyqt5 webengine 
+```bash
+sudo apt install python3-pyqt5.qtwebengine
+```
 ### Server setup
 
 1. Execute the following commands to register the 5 agents in the prosody server
@@ -173,40 +178,42 @@ python3 src/MAV_model.py --name test5 --uav_add udp://:14544 --uav_port 50044 --
   - [x] Basic function - RTL, Mission, Takeoff.
   - [x] SITL PX4
   - [ ] SITL ArduPilot
-- [ ] Sprint 2 - Multi-Agent Architecture
+- [x] Sprint 2 - Multi-Agent Architecture
   - [x] FIPA protocol
   - [x] Role in society
   - [x] Communication restriction
   - [x] Record labels and warning
   - [x] Registering transactions
-  - [ ] Record and label of transactions
-- [ ] Sprint 3 - Coverage MissionPlan
+  - [x] Record and label of transactions
+- [x] Sprint 3 - Coverage MissionPlan
   - [x] Ground station auction
   - [x] Ground station controller
-  - [ ] Mission Log
+  - [x] Mission Log
   - [x] Telemetry & Characteristics of MAV on GCS 
   - [x] Mission Upload
 - [ ] Sprint 4 - Fault simulation
   - [x] Behaviors on faults
   - [x] 6 possible faults/failures
   - [ ] Communication with neighbour during fault
-- [ ] Sprint 5 - Desktop Application
+- [x] Sprint 5 - Desktop Application
   - [x] Connect multiple SITL instances
-  - [ ] Auction method integration
+  - [x] Auction method integration
   - [x] Read state of MAV in RT
   - [x] Simulate faults UI
-  - [ ] Visualize Missions
-  - [ ] Export/View logs
+  - [x] Visualize Missions
+  - [x] Export/View logs
 - [ ] Final Documentation
   - [ ] Tests and Documentation of BDI
   - [ ] Tests and Documentation of SITL
   - [ ] Tests and Documentation of Transactions
-  - [ ] Tests adn Documentation of Auction method
+  - [x] Tests adn Documentation of Auction method
   - [ ] Tests and Documentation of Faults
   - [ ] Tests and Documentation of GUI
   - [x] Interim project video documentation 
   - [ ] Full documentation of source code simulation and desktop application
-
+- [ ] Extra Features
+  - [ ] MAP based BDI coloring of MAV agents
+  - [ ] MAP based FIPA message demonstration   
 
 
 
