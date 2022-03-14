@@ -5,7 +5,9 @@ python3 src/MAV_model.py --name test2 --uav_add udp://:14541 --uav_port 50041 --
 python3 src/MAV_model.py --name test3 --uav_add udp://:14542 --uav_port 50042 --mc_port 5557
 python3 src/MAV_model.py --name test4 --uav_add udp://:14543 --uav_port 50043 --mc_port 5558
 python3 src/MAV_model.py --name test5 --uav_add udp://:14544 --uav_port 50044 --mc_port 5559
- 
+
+Tools/gazebo_sitl_multiple_run.sh -m typhoon_h480 -w mcmillan_airfield -n 5
+
 prosodyctl adduser me@example.com
 
 sudo tail /var/log/prosody/prosody.log
@@ -46,3 +48,6 @@ pip install pyqt5
 pip install pyqt5-tools
 pip install aioconsole
 pip install matplotlib
+pip install speedtest-cli
+pip install Shapely
+pip install pyproj
