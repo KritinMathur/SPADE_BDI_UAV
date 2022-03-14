@@ -1,0 +1,4 @@
+{
+    "dummy":{"batt_cap":"in mAh","avg_draw":"in Amp"},
+    "test":{"batt_cap":3600,"avg_draw":20}
+}

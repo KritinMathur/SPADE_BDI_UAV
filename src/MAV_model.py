@@ -1,3 +1,4 @@
+from distutils.command.config import config
 import os
 import time
 from spade.agent import Agent
@@ -258,7 +259,17 @@ class MAVAgent(PubSubMixin, BDIAgent):
     class TelemGetter(CyclicBehaviour):
 
         async def on_start(self):
-            mav.telem_unit = None
+            telem_unit = await mav.telem_socket.recv()
+            telem_unit = telem_unit.decode()
+            telem_unit = json.loads(telem_unit)
+
+            import bench
+            rem_batt = telem_unit['batt']
+
+            with open('./src/MAV_config.json','r') as config_file:
+                mav_config = json.load(config_file)
+
+            bench.benchmark(args.name,rem_batt,mav_config[args.name]['batt_cap'],mav_config[args.name]['avg_draw'])
 
         async def run(self):
             telem_unit = await mav.telem_socket.recv()
@@ -280,9 +291,12 @@ class MAVAgent(PubSubMixin, BDIAgent):
                 t = time.localtime()
                 current_time = time.strftime("%H:%M:%S", t)
 
-                payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': HETRO_CHAR,'log':mav.log_info,'timestamp':current_time}}
- 
                 try:
+                    with open('./src/bench_json.json','r') as bench_file:
+                        mav.benchmark_dict = json.load(bench_file)
+
+                    payload = {'ID': args.name, 'data': {'telem': mav.telem_unit, 'characteristic': mav.benchmark_dict[args.name],'log':mav.log_info,'timestamp':current_time}}
+                    
                     await mav.pubsub.retract('pubsub.localhost', "Telemetry_node",item_id=args.name)
                     #print('telemetry retraction successful')
                 except:
